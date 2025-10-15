@@ -197,7 +197,7 @@ Defines the conditions that must be met to unseal a vault.
 
 ```typescript
 interface PoARequirements {
-    recipientAddress: string;      // Bitcoin address (any type)
+    recipientAddress: string;       // Bitcoin address (any type)
     amount: number;                 // Satoshis (uint64)
     confirmations: number;          // Minimum confirmations required
     timeLock?: number;              // Optional block height restriction
@@ -351,7 +351,7 @@ This is a new protocol with no previous versions. Future versions must maintain 
 
 ## 7. Reference Implementation
 
-Reference implementation available at: https://github.com/orangecheck/oc-web
+Reference implementation available at: https://github.com/orangecheck/oc-lock
 
 Implementation language: TypeScript
 Dependencies: bitcoinjs-lib, @noble/secp256k1, Web Crypto API
