@@ -1,469 +1,356 @@
-# LOCK Protocol - Documentation Index
+# LOCK Protocol v1.0 — Taproot Adaptor-Locked Secret
 
-**Version:** 1.0  
-**Status:** Core Complete, Integration In Progress  
-**Last Updated:** 2025-10-13
-
----
-
-## Quick Links
-
-- 📋 **[Project Status](./LOCK_PROJECT_STATUS.md)** - Current state, what's working, what's broken
-- 🛠️ **[Implementation Plan](./IMPLEMENTATION_PLAN.md)** - Step-by-step guide to complete the app
-- 🎨 **[UX Improvements](./UX_IMPROVEMENTS.md)** - Design enhancements and user experience polish
-- 📖 **[Protocol Specification](./PROTOCOL.md)** - Technical protocol overview
-- 📐 **[Technical Spec](./SPEC.md)** - Detailed cryptographic specification
-- ✅ **[Unseal Flow Notes](./UNSEAL_FLOW_IMPLEMENTATION.md)** - Implementation notes for unsealing
+**Profile:** `lock-v1-taproot-adaptor`  
+**Status:** Implementation-Ready Specification  
+**Version:** 1.0.0
 
 ---
 
-## Executive Summary
+## Overview
 
-### What is LOCK Protocol?
+LOCK (Ledger-Originated Cryptographic Key) Protocol v1.0 enables **cryptographically-enforced encryption** to a Bitcoin Taproot address, where decryption requires:
 
-**LOCK** (Ledger-Originated Cryptographic Key) is a Bitcoin-enforced encryption protocol that enables secure data encryption to a Bitcoin address without requiring the recipient's public key or transaction history.
+1. **On-chain proof of ownership:** Recipient spends a Challenge UTXO with their Taproot private key
+2. **Proof-of-Access (PoA):** Recipient creates a transaction meeting specific rules (amount, confirmations, optional timelock)
 
-**Key Innovation:** Uses signature-based key derivation instead of ECDH, allowing encryption to ANY Bitcoin address (even unused ones).
-
-### Current Status
-
-✅ **Core Protocol:** Complete and tested (282 passing tests)  
-✅ **Type Safety:** 0 TypeScript errors  
-✅ **UI Components:** Built and styled  
-❌ **Integration:** 3 critical gaps preventing end-to-end functionality
-
-### Critical Gaps
-
-1. **Wallet Signing** - Need to integrate challenge signing with wallet adapter
-2. **Conversation Creation** - Need to wire up seal() to message sending
-3. **Unseal Completion** - Need to connect all pieces for decryption
-
-**Time to Fix:** 2-3 days of focused development
+**Key Innovation:** Uses **Taproot adaptor signatures** (scriptless scripts) to bind vault decryption to on-chain events, with complete **privacy** (all transactions appear as standard Taproot key-path spends).
 
 ---
 
-## Architecture Overview
+## Core Properties
 
-### Technology Stack
-
-```
-Frontend:
-- Next.js 15.5.4 (Pages Router)
-- TypeScript 5
-- Tailwind CSS 4
-- shadcn/ui components
-- bitcoin-wallet-adapter
-
-Cryptography:
-- Web Crypto API (AES-GCM, HKDF, SHA-256)
-- BIP-322 message signing
-- Custom LOCK protocol implementation
-
-Bitcoin Integration:
-- mempool.space API
-- Proof-of-Access (PoA) transactions
-- Merkle root entropy
-```
-
-### File Structure
-
-```
-src/modules/lock/
-├── components/          # UI components (conversations, vault, wallet)
-├── context/            # React contexts (wallet, vault, settings)
-├── hooks/              # Custom hooks (transactions, derivation, alerts)
-├── lib/
-│   ├── lock/          # Core protocol (seal, unseal, crypto)
-│   └── utils/         # Helpers (conversation, export, validation)
-└── schemas/           # Zod validation schemas
-
-src/pages/lock/
-├── index.tsx          # Redirects to /conversations
-└── conversations/
-    ├── index.tsx      # Conversation list
-    ├── [id].tsx       # Chat view
-    ├── new.tsx        # Create conversation
-    └── import.tsx     # Import vault
-
-docs/oc-lock/
-├── README.md                          # This file
-├── LOCK_PROJECT_STATUS.md             # Detailed status analysis
-├── IMPLEMENTATION_PLAN.md             # Step-by-step implementation guide
-├── UX_IMPROVEMENTS.md                 # UX enhancements
-├── PROTOCOL.md                        # Protocol overview
-├── SPEC.md                            # Technical specification
-└── UNSEAL_FLOW_IMPLEMENTATION.md      # Unseal flow notes
-```
+✅ **Cryptographically enforced:** Decryption is mathematically impossible without both Challenge spend and mined PoA  
+✅ **One-time sender operation:** Sender creates vault once and never returns  
+✅ **Wallet compatible:** Works with any Taproot PSBT signer (browser, hardware, air-gapped)  
+✅ **Privacy-preserving:** No custom opcodes, covenant scripts, or on-chain fingerprints  
+✅ **Deterministic:** Clear state machine, unambiguous algorithms, comprehensive test vectors
 
 ---
 
-## Getting Started
+## How It Works
 
-### For Developers
+### Sender Flow (Seal)
 
-1. **Read the Status Document:**
-   ```bash
-   open docs/oc-lock/LOCK_PROJECT_STATUS.md
-   ```
-   Understand what's working and what needs to be fixed.
+1. **Generate adaptor secret `k`** and compute commitment `T = k·G`
+2. **Fund Challenge UTXO** (330 sats to recipient's Taproot address)
+3. **Create adaptor pre-signature** for Challenge spend
+4. **Encrypt payload** with random master key
+5. **Encrypt master key** with temporary key derived from `k`
+6. **Assemble vault file** (JSON) with all metadata and ciphertext
+7. **Erase secrets** (`k`, master key) from memory
+8. **Distribute vault file** to recipient
 
-2. **Review the Implementation Plan:**
-   ```bash
-   open docs/oc-lock/IMPLEMENTATION_PLAN.md
-   ```
-   Follow the step-by-step guide to complete the integration.
+**On-chain:** One standard P2TR output (Challenge UTXO, 330 sats)
 
-3. **Run Type Checks:**
-   ```bash
-   npm run type-check
-   ```
-   Should pass with 0 errors.
+### Recipient Flow (Unseal)
 
-4. **Run Tests:**
-   ```bash
-   npm test
-   ```
-   All 282 tests should pass.
+1. **Import vault file** and validate structure
+2. **Create PoA transaction** (send required amount to self)
+3. **Wait for confirmations** and extract block merkle root
+4. **Spend Challenge UTXO** (standard Taproot key-path signature)
+5. **Extract adaptor secret `k`** from final signature
+6. **Derive unseal key** from `k` and PoA merkle root
+7. **Decrypt master key** and payload
+8. **Erase secrets** from memory
 
-5. **Start Development:**
-   ```bash
-   npm run dev
-   ```
-   Navigate to http://localhost:3000/lock/conversations
-
-### For Designers
-
-1. **Review UX Improvements:**
-   ```bash
-   open docs/oc-lock/UX_IMPROVEMENTS.md
-   ```
-   See proposed design enhancements and user experience improvements.
-
-2. **Check Current UI:**
-   - Visit `/lock/conversations` for conversation list
-   - Visit `/lock/conversations/new` for conversation creation
-   - Check wallet connection flow
-   - Review vault import (drag & drop)
-
-### For Product Managers
-
-1. **Understand the Protocol:**
-   ```bash
-   open docs/oc-lock/PROTOCOL.md
-   ```
-   Learn what LOCK does and why it's valuable.
-
-2. **Review Project Status:**
-   ```bash
-   open docs/oc-lock/LOCK_PROJECT_STATUS.md
-   ```
-   See current progress and timeline to completion.
+**On-chain:** Two standard P2TR spends (PoA + Challenge)
 
 ---
 
-## Key Concepts
+## Security Model
 
-### Vault
+### Cryptographic Guarantees
 
-An encrypted data container with embedded access requirements. Contains:
-- Encrypted payload (conversation messages)
-- PoA requirements (address, amount, confirmations)
-- Cryptographic metadata (challenge, output commitment)
+- **Soundness:** Without Challenge spend, `k` is hidden (discrete log problem). Without PoA block, merkle root is unknowable. Without both, decryption is impossible.
+- **Unforgeability:** Only the recipient's private key can produce a valid Schnorr signature for Challenge spend.
+- **Binding:** Output commitment cryptographically binds vault to specific PoA transaction output.
+- **Integrity:** AEAD tags authenticate all ciphertext and metadata.
 
-**File Format:** `.vault` (binary format, ~500 bytes + payload size)
+### Privacy Properties
 
-### Proof-of-Access (PoA)
-
-A Bitcoin transaction that proves the recipient meets access requirements:
-- Sends exact amount to exact address
-- Must have required confirmations
-- Recipient creates this transaction themselves (self-spend)
-- Only costs network fees (~10-50 sats)
-
-### Sealing
-
-The process of encrypting data into a vault:
-1. Generate random vault ID
-2. Compute output commitment (binds to PoA transaction)
-3. Generate challenge (recipient must sign this)
-4. Encrypt payload with master key
-5. Encrypt master key with base key (derived from challenge)
-
-### Unsealing
-
-The process of decrypting a vault:
-1. Create PoA transaction (prove address ownership)
-2. Wait for confirmations
-3. Sign challenge with private key
-4. Derive unseal key (using signature + merkle root + output commitment)
-5. Decrypt master key
-6. Decrypt payload
+- **On-chain indistinguishability:** Challenge and PoA transactions are standard Taproot key-path spends (no custom scripts).
+- **No linkability:** Challenge and PoA transactions are independent (unless address reuse).
+- **Forward secrecy:** Sender cannot decrypt after seal (`k` is erased).
+- **Minimal metadata:** Vault file reveals recipient address and PoA amount (encrypt vault file for defense-in-depth).
 
 ---
 
-## User Flows
+## Use Cases
 
-### Creating a Conversation
-
-```
-1. User clicks "New Conversation"
-2. Enters recipient Bitcoin address
-3. Types message (optional: attach file)
-4. Clicks "Send"
-5. LOCK seals vault with message
-6. .vault file downloads
-7. User shares file with recipient
-```
-
-**Current Status:** ❌ Step 5-6 not implemented
-
-### Receiving a Conversation
-
-```
-1. User receives .vault file
-2. Drags file into LOCK app (or pastes data)
-3. LOCK detects user is recipient
-4. Unseal flow dialog appears
-5. User creates PoA transaction
-6. Waits for confirmation
-7. LOCK automatically unseals vault
-8. Messages display in conversation thread
-```
-
-**Current Status:** ⚠️ Steps 1-4 work, steps 5-8 partially implemented
-
-### Replying to a Conversation
-
-```
-1. User opens unsealed conversation
-2. Types reply message
-3. Clicks "Send"
-4. LOCK creates new vault with updated conversation
-5. New .vault file downloads
-6. User shares updated file with recipient
-```
-
-**Current Status:** ❌ Not implemented
+- **Conditional data release:** Unlock documents/keys only after payment proof
+- **Escrow-free exchanges:** Atomic data-for-bitcoin swaps
+- **Time-locked secrets:** Combine with PoA timelock for future revelation
+- **Inheritance planning:** Encrypt data accessible only after specific on-chain events
+- **Whistleblower drops:** Anonymous encrypted data with bitcoin-gated access
+- **Decentralized dead man's switch:** Auto-release after inactivity (via timelock)
 
 ---
 
-## Testing Strategy
+## Documentation Structure
 
-### Unit Tests (✅ Complete)
+### 1. [SPEC.md](SPEC.md) — Technical Specification
 
-```bash
-npm test
-```
+**Formal specification covering:**
+- Cryptographic primitives (secp256k1, BIP-340 Schnorr, HKDF, AES-GCM)
+- Adaptor signature construction and extraction
+- Data structures (vault container, output commitment, Challenge UTXO)
+- Seal and unseal algorithms (step-by-step)
+- Security analysis and attack resistance
+- Error handling and validation
+- Implementation requirements
 
-**Coverage:**
-- ✅ Cryptographic primitives (34 tests)
-- ✅ Seal/unseal operations (19 tests)
-- ✅ Serialization (15 tests)
-- ✅ Output commitments (35 tests)
-- ✅ Challenge generation (10 tests)
-- ✅ Integration tests (7 tests)
+**Audience:** Protocol implementers, cryptographers, security auditors
 
-**Total:** 282 tests passing
+### 2. [PROTOCOL.md](PROTOCOL.md) — Product Flow & Integration Guide
 
-### Integration Tests (❌ Needed)
+**Product-focused documentation covering:**
+- User flows (sender and recipient step-by-step)
+- Wallet integration patterns (browser, hardware, air-gapped)
+- Error handling and recovery procedures
+- Privacy and security guidance
+- Operational considerations (fees, timelocks, dust limits)
+- Future extensions (multi-recipient, revocable vaults, proof of unseal)
 
-**Manual Testing Checklist:**
-- [ ] Create conversation with wallet connected
-- [ ] Export vault file
-- [ ] Import vault as recipient
-- [ ] Create PoA transaction
-- [ ] Wait for confirmation
-- [ ] Unseal vault
-- [ ] View decrypted messages
-- [ ] Reply to conversation
-- [ ] Test with demo mode
-- [ ] Test error cases
+**Audience:** Product managers, UX designers, integration engineers
 
-### E2E Tests (❌ Needed)
+### 3. [FORMAT.md](FORMAT.md) — Vault Container Format
 
-**Playwright Tests to Write:**
-- [ ] Complete conversation creation flow
-- [ ] Complete unseal flow
-- [ ] Wallet connection flow
-- [ ] Error handling scenarios
-- [ ] Mobile responsiveness
+**Serialization specification covering:**
+- JSON schema and field definitions
+- Canonical ordering and encoding rules
+- Validation constraints and error handling
+- Future-proofing and versioning
+- Interoperability requirements
 
----
+**Audience:** Implementation engineers, QA testers
 
-## Development Roadmap
+### 4. [TESTPLAN.md](TESTPLAN.md) — Test Vectors & Validation
 
-### Phase 1: Make It Work (Week 1)
-**Goal:** One complete end-to-end flow
+**Comprehensive test suite covering:**
+- Deterministic test vectors for all cryptographic operations
+- End-to-end seal and unseal tests
+- Negative tests (tampering, wrong keys, invalid inputs)
+- Edge cases (dust limits, reorgs, timelocks)
+- Interoperability tests (cross-implementation vault exchange)
+- Performance benchmarks and security validation
 
-- [ ] Implement wallet challenge signing
-- [ ] Wire up conversation creation
-- [ ] Complete unseal flow
-- [ ] Test full cycle: create → export → import → unseal
+**Audience:** Implementation engineers, QA testers, security auditors
 
-**Deliverable:** Working prototype
+### 5. [RISK.md](RISK.md) — Risk Analysis & Limitations
 
-### Phase 2: Make It Usable (Week 2)
-**Goal:** Polish UX and add demo mode
+**Comprehensive risk assessment covering:**
+- Cryptographic assumptions (DLP, ECDSA, SHA-256, AES)
+- Blockchain assumptions (PoW integrity, transaction finality, reorgs)
+- Wallet integration risks (compatibility, security, air-gapped workflows)
+- Economic risks (dust economics, fee volatility, timelock risks)
+- Privacy risks (on-chain linkability, metadata leakage, network privacy)
+- DoS risks (sender/recipient/network-level attacks)
+- Implementation risks (software bugs, dependencies, platform security)
+- Quantum computing risks (timeline, attack scenarios, migration path)
+- Legal and regulatory risks (encryption regulations, financial regulations)
+- Operational best practices and incident response
 
-- [ ] Integrate demo mode
-- [ ] Improve PoA monitoring
-- [ ] Add conversation replies
-- [ ] Better error messages
-- [ ] Loading states
-
-**Deliverable:** Usable beta
-
-### Phase 3: Make It Great (Week 3-4)
-**Goal:** Production-ready polish
-
-- [ ] Onboarding flow
-- [ ] Vault management
-- [ ] Mobile optimization
-- [ ] Accessibility improvements
-- [ ] E2E tests
-- [ ] Documentation
-
-**Deliverable:** Production release
+**Audience:** Security teams, risk managers, compliance officers
 
 ---
 
-## Common Issues & Solutions
+## Quick Start
 
-### Issue: "Wallet signing not implemented"
+### For Implementers
 
-**Solution:** See [Implementation Plan](./IMPLEMENTATION_PLAN.md) Task 1.1
+1. **Read [SPEC.md](SPEC.md)** for complete technical specification
+2. **Review [TESTPLAN.md](TESTPLAN.md)** for test vectors
+3. **Implement cryptographic primitives** (HKDF, AES-GCM, secp256k1, adaptor signatures)
+4. **Implement seal and unseal algorithms** per SPEC.md
+5. **Validate against test vectors** (all tests must pass)
+6. **Integrate with Bitcoin wallet** (PSBT signing)
+7. **Test with real wallets** (Unisat, Xverse, Ledger, Coldcard)
 
-### Issue: "Conversation creation doesn't work"
+### For Product Teams
 
-**Solution:** See [Implementation Plan](./IMPLEMENTATION_PLAN.md) Task 1.2
+1. **Read [PROTOCOL.md](PROTOCOL.md)** for user flows and UX guidance
+2. **Design sender flow** (vault creation, Challenge UTXO funding, vault distribution)
+3. **Design recipient flow** (vault import, PoA creation, Challenge spend, decryption)
+4. **Implement error handling** (validation errors, PoA errors, Challenge errors, decryption errors)
+5. **Test with target wallets** (browser, hardware, air-gapped)
+6. **Review [RISK.md](RISK.md)** for security and privacy guidance
 
-### Issue: "Unseal flow fails"
+### For Security Auditors
 
-**Solution:** Check wallet connection, PoA transaction status, and signature implementation
+1. **Review [SPEC.md](SPEC.md)** for cryptographic design
+2. **Review [RISK.md](RISK.md)** for threat model and assumptions
+3. **Verify test vectors** in [TESTPLAN.md](TESTPLAN.md)
+4. **Audit implementation** for:
+   - Correct cryptographic primitive usage
+   - Secure random number generation
+   - Constant-time operations (timing attack resistance)
+   - Secure memory handling (secret zeroing)
+   - Input validation and error handling
+5. **Perform penetration testing** (tampering, replay, side-channels)
 
-### Issue: "Type errors"
+---
 
-**Solution:** Run `npm run type-check` - should be 0 errors. If not, check recent changes.
+## Implementation Checklist
 
-### Issue: "Tests failing"
+### Cryptographic Primitives
 
-**Solution:** Run `npm test` - all 282 tests should pass. Check for breaking changes.
+- [ ] secp256k1 point multiplication and scalar arithmetic
+- [ ] BIP-340 Schnorr signature generation and verification
+- [ ] Adaptor signature pre-signature creation
+- [ ] Adaptor secret extraction from final signature
+- [ ] HKDF-SHA256 (RFC 5869)
+- [ ] AES-256-GCM with AAD
+- [ ] SHA-256 and tagged hashing (BIP-340 style)
+- [ ] Secure random number generation (CSPRNG)
+- [ ] Constant-time operations (libsecp256k1, etc.)
+- [ ] Secure memory zeroing
+
+### Vault Operations
+
+- [ ] Seal: Generate vault from payload and rules
+- [ ] Unseal: Decrypt vault with PoA and Challenge spend
+- [ ] Vault serialization (JSON encoding/decoding)
+- [ ] Vault validation (structure, fields, constraints)
+- [ ] Output commitment computation
+- [ ] Challenge UTXO creation and monitoring
+
+### Blockchain Integration
+
+- [ ] Transaction creation and broadcasting
+- [ ] UTXO queries (Challenge UTXO spent status)
+- [ ] Block header retrieval and merkle root extraction
+- [ ] Confirmation monitoring
+- [ ] Reorg detection and handling
+- [ ] Fee estimation and RBF support
+
+### Wallet Integration
+
+- [ ] Taproot address generation (Bech32m)
+- [ ] PSBT creation (BIP-174, BIP-371)
+- [ ] PSBT signing (browser wallet APIs)
+- [ ] PSBT finalization and broadcasting
+- [ ] Air-gapped support (QR codes, UR encoding, SD card)
+- [ ] Hardware wallet support (Ledger, Trezor, Coldcard)
+
+### Testing
+
+- [ ] All cryptographic primitive tests pass
+- [ ] All vault serialization tests pass
+- [ ] Deterministic seal test passes
+- [ ] Successful unseal test passes
+- [ ] All negative tests pass (tampering, wrong keys, etc.)
+- [ ] Edge case tests pass (dust limits, reorgs, timelocks)
+- [ ] Cross-implementation vault exchange succeeds
+- [ ] Performance benchmarks meet targets
+- [ ] Security validation (constant-time, memory zeroing, randomness)
+
+---
+
+## Dependencies
+
+### Required Libraries
+
+- **secp256k1:** `libsecp256k1` or `@noble/secp256k1` (JavaScript)
+- **Cryptography:** OpenSSL, libsodium, or Web Crypto API
+- **Bitcoin:** `bitcoinjs-lib`, `rust-bitcoin`, or equivalent
+- **PSBT:** BIP-174/BIP-371 compatible library
+
+### Optional Libraries
+
+- **QR codes:** `qrcode`, `ur` (Uniform Resources encoding)
+- **Blockchain APIs:** `blockstream.info`, `mempool.space`, or local Bitcoin Core node
+
+---
+
+## Compliance and Interoperability
+
+### Standards Compliance
+
+- **BIP-340:** Schnorr Signatures for secp256k1
+- **BIP-341:** Taproot: SegWit version 1 spending rules
+- **BIP-174:** Partially Signed Bitcoin Transaction Format
+- **BIP-371:** Taproot Fields for PSBT
+- **RFC 5869:** HKDF (HMAC-based Key Derivation Function)
+- **RFC 6979:** Deterministic Usage of DSA and ECDSA
+- **NIST SP 800-38D:** AES-GCM specification
+
+### Interoperability Requirements
+
+- Vaults created by implementation A MUST be unsealed by implementation B
+- Identical KDF labels, AEAD AAD construction, and output commitment computation
+- Canonical JSON serialization per [FORMAT.md](FORMAT.md)
+- Test vectors in [TESTPLAN.md](TESTPLAN.md) MUST pass
+
+---
+
+## Versioning and Future Compatibility
+
+### Current Version
+
+- **Profile:** `lock-v1-taproot-adaptor`
+- **Version:** 1.0.0
+- **Status:** Implementation-Ready Draft
+
+### Future Versions
+
+- **v2.0:** May introduce post-quantum cryptography, multi-recipient vaults, or revocation
+- **Backward compatibility:** NOT guaranteed across major versions
+- **Migration:** Users must re-seal vaults for new protocol versions
+
+### Version Detection
+
+- Vault files include `version` field: `"lock-v1-taproot-adaptor"`
+- Implementations MUST reject unknown versions (fail-safe)
 
 ---
 
 ## Contributing
 
-### Code Style
+### Feedback and Issues
 
-- Use TypeScript strict mode
-- Follow existing patterns in codebase
-- Add JSDoc comments for public APIs
-- Write tests for new features
-- Run `npm run type-check` before committing
+- **Specification issues:** Open GitHub issue with tag `spec`
+- **Implementation questions:** Open GitHub issue with tag `implementation`
+- **Security vulnerabilities:** Email security@example.com (responsible disclosure)
 
-### Pull Request Process
+### Test Vector Contributions
 
-1. Create feature branch from `main`
-2. Implement changes following [Implementation Plan](./IMPLEMENTATION_PLAN.md)
-3. Add/update tests
-4. Run type checks and tests
-5. Update documentation
-6. Submit PR with clear description
+- Submit deterministic test vectors for edge cases
+- Include inputs, expected outputs, and rationale
+- Follow format in [TESTPLAN.md](TESTPLAN.md)
 
-### Documentation
+### Protocol Improvements
 
-- Update relevant docs when changing features
-- Add inline comments for complex logic
-- Keep README files up to date
-- Document breaking changes
-
----
-
-## Resources
-
-### External Documentation
-
-- [Bitcoin Wallet Adapter](https://github.com/bitcoin-wallet-adapter/bitcoin-wallet-adapter)
-- [mempool.space API](https://mempool.space/docs/api)
-- [BIP-322 Specification](https://github.com/bitcoin/bips/blob/master/bip-0322.mediawiki)
-- [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API)
-
-### Internal Documentation
-
-- [OrangeCheck Protocol](../oc-protocol/PROTOCOL.md)
-- [Project Structure](../../README.md)
-- [Component Library](../../src/components/README.md)
-
----
-
-## Support
-
-### Getting Help
-
-1. **Check Documentation:** Start with this README and linked docs
-2. **Review Code:** Look at existing implementations for patterns
-3. **Run Tests:** Tests show expected behavior
-4. **Ask Questions:** Open GitHub issue or discussion
-
-### Reporting Bugs
-
-1. Check if issue already exists
-2. Provide minimal reproduction
-3. Include error messages and logs
-4. Specify environment (browser, wallet, network)
+- Propose enhancements via GitHub issue with tag `enhancement`
+- Include motivation, design, security analysis, and backward compatibility impact
+- Major changes require new protocol version (v2.0+)
 
 ---
 
 ## License
 
-This project is part of the OrangeCheck ecosystem.
+This specification is released under **CC0 1.0 Universal (Public Domain)**.
 
-**Protocol Specification:** CC-BY-4.0  
-**Implementation Code:** [Your License Here]
-
----
-
-## Changelog
-
-### 2025-10-13
-- ✅ Fixed TypeScript syntax error in ConversationThread.tsx
-- ✅ Created comprehensive documentation suite
-- ✅ Analyzed project status and identified critical gaps
-- ✅ Developed detailed implementation plan
-- ✅ Documented UX improvements
-
-### 2025-10-12
-- ✅ Implemented unseal flow UI
-- ✅ Added vault import functionality
-- ✅ Created protocol documentation
-
-### Earlier
-- ✅ Implemented core LOCK protocol
-- ✅ Built conversation UI components
-- ✅ Integrated wallet connection
-- ✅ Created test suite
+Implementations may use any license compatible with their dependencies.
 
 ---
 
-## Next Steps
+## Acknowledgments
 
-**Immediate Actions:**
-
-1. **Read [LOCK_PROJECT_STATUS.md](./LOCK_PROJECT_STATUS.md)** to understand current state
-2. **Follow [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md)** to complete integration
-3. **Review [UX_IMPROVEMENTS.md](./UX_IMPROVEMENTS.md)** for design polish
-
-**Priority Order:**
-
-1. 🔴 Wallet signing integration (unblocks everything)
-2. 🔴 Conversation creation flow
-3. 🔴 Complete unseal flow
-4. 🟡 Demo mode integration
-5. 🟡 UX improvements
-
-**Timeline:** 2-3 days for critical features, 1 week for complete polish
+- **Bitcoin Core developers:** For Taproot and Schnorr signatures
+- **libsecp256k1 contributors:** For constant-time secp256k1 implementation
+- **BIP authors:** For standardizing Bitcoin protocols
+- **Cryptography researchers:** For adaptor signatures and scriptless scripts
 
 ---
 
-**Ready to start?** Begin with [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) Task 1.1! 🚀
+## Contact
+
+- **Specification maintainer:** [Your contact info]
+- **Reference implementation:** [Link to reference implementation]
+- **Community chat:** [Discord/Telegram/Matrix link]
+- **Security contact:** security@example.com
+
+---
+
+**End of README**
 
