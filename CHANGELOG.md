@@ -4,6 +4,15 @@ All notable changes to the OC Lock protocol and reference SDK.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased] — 2026-04
+
+### Added
+- `SECURITY.md` with threat model, trust assumptions, and report channel.
+- §12 "Acknowledgements" in SPEC crediting Bram Kanstein for the "Bitcoin as identity, not access oracle" reframing that shaped v2.
+
+### Clarified (non-breaking)
+- §3 "Device keys": strengthened the compliance language to make explicit that implementations MUST verify `binding_sig` before using a device record for encryption. This was already implicit in the previous text; it is now a hard normative requirement with a specific security rationale documented in `SECURITY.md`.
+
 ## [2.0.0] — 2026-04
 
 Complete protocol rewrite. **Not compatible with v1.x.**
