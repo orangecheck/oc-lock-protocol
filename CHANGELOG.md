@@ -16,7 +16,7 @@ Complete protocol rewrite. **Not compatible with v1.x.**
 - Payment mode with named relay (§4.4)
 - RFC 8785 canonicalization with `recipients[]` ordering (§5)
 - Compliance checklist (§10)
-- Reference SDK in TypeScript (`packages/core`, `packages/crypto`, `packages/device`)
+- Reference SDK in TypeScript, published from [`orangecheck/oc-packages`](https://github.com/orangecheck/oc-packages) as `@orangecheck/lock-crypto`, `@orangecheck/lock-core`, `@orangecheck/lock-device`. This repo is now spec-only; code lives with the rest of the OrangeCheck SDK.
 
 ### Removed
 - Adaptor signatures

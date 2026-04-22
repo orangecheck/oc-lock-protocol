@@ -1,12 +1,42 @@
-# OC Lock
+# OC Lock Protocol
 
 **Bitcoin-identity-bound end-to-end encryption.**
 
 OC Lock is a protocol for encrypting messages and files such that only the holder of a specific Bitcoin address can decrypt them — without wallet-adaptor crypto tricks, without on-chain transactions for the normal case, and without publishing raw pubkeys out-of-band.
 
-It is the successor to the original **LOCK Protocol** (2024–2025), which tried to enforce access control through adaptor signatures and proof-of-access Bitcoin transactions. That design was cryptographically interesting and practically dead on arrival: recipients had to publish BIP-322 signatures before they could receive anything, senders had to broadcast binding transactions, unlocks required PSBT round-trips with desktop wallets, and the WASM crypto libraries needed for adaptor signatures simply didn't exist for the browser. See [`WHY.md`](./WHY.md) for a full postmortem.
+It is the successor to the original **LOCK Protocol** (2024–2025), which tried to enforce access control through adaptor signatures and proof-of-access Bitcoin transactions. That design was cryptographically interesting and practically dead on arrival: recipients had to publish BIP-322 signatures before they could receive anything, senders had to broadcast binding transactions, unlocks required PSBT round-trips with desktop wallets, and the WASM crypto libraries needed for adaptor signatures simply didn't exist for the browser. See [`WHY.md`](./WHY.md) for the full postmortem.
 
 OC Lock v2 starts from a different premise: **onboarding is the protocol**. If a user can't lock or unlock a message in under a minute with a wallet they already have, nothing else matters.
+
+## This repo
+
+This repository is the **normative protocol specification**. No code lives here — only:
+
+| File | What it is |
+|---|---|
+| [`SPEC.md`](./SPEC.md) | The normative v2 specification — envelope format, canonicalization, binding statements, error codes, compliance checklist. |
+| [`PROTOCOL.md`](./PROTOCOL.md) | Narrative walkthrough with flow diagrams (identity mode, payment mode, multi-device, self-vaults). |
+| [`WHY.md`](./WHY.md) | Postmortem of the original LOCK Protocol. Why v1 failed. What v2 keeps and discards. |
+| [`CHANGELOG.md`](./CHANGELOG.md) | Version history. |
+
+## Reference implementation
+
+The TypeScript reference implementation is published as three npm packages, maintained in the `oc-packages` monorepo:
+
+| Package | Directory | Purpose |
+|---|---|---|
+| [`@orangecheck/lock-crypto`](https://github.com/orangecheck/oc-packages/tree/main/lock-crypto) | `lock-crypto/` | X25519 ECDH + HKDF-SHA256 + AES-256-GCM primitives. |
+| [`@orangecheck/lock-core`](https://github.com/orangecheck/oc-packages/tree/main/lock-core) | `lock-core/` | Envelope canonicalization, `seal()`, `unseal()`. |
+| [`@orangecheck/lock-device`](https://github.com/orangecheck/oc-packages/tree/main/lock-device) | `lock-device/` | Device-key binding statements + Nostr kind-30078 publication. |
+
+```
+npm i @orangecheck/lock-core
+# (pulls lock-crypto transitively)
+```
+
+## Reference web client
+
+A live implementation of OC Lock v2 runs at **[oc-lock-web.vercel.app](https://oc-lock-web.vercel.app)**. Source: [`orangecheck/oc-lock-web`](https://github.com/orangecheck/oc-lock-web).
 
 ## How it works (one paragraph)
 
@@ -17,39 +47,29 @@ For commerce flows ("pay 10k sats to unlock this file"), OC Lock defines an opti
 ## Layers
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│  oc-lock-web      sender UI, recipient UI, relay UI     │
-├─────────────────────────────────────────────────────────┤
-│  @oc-lock/core    seal/unseal, envelope canonicalization │
-│  @oc-lock/crypto  X25519 ECDH, HKDF, AES-256-GCM         │
-│  @oc-lock/device  device keypair binding + Nostr publish │
-├─────────────────────────────────────────────────────────┤
-│  OrangeCheck      identity + sybil resistance            │
-│  Nostr            device key directory (kind 30078)      │
-│  Bitcoin          address ownership (BIP-322)            │
-└─────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│  oc-lock-web             sender UI, recipient UI, relay UI      │
+├─────────────────────────────────────────────────────────────────┤
+│  @orangecheck/lock-core       seal/unseal, envelope canonical   │
+│  @orangecheck/lock-crypto     X25519 ECDH, HKDF, AES-256-GCM    │
+│  @orangecheck/lock-device     device binding + Nostr publish    │
+├─────────────────────────────────────────────────────────────────┤
+│  OrangeCheck            identity + sybil resistance             │
+│  Nostr                  device key directory (kind 30078)       │
+│  Bitcoin                address ownership (BIP-322)             │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-## Repo layout
+## Related repositories
 
-```
-oc-lock/
-├── README.md           this file
-├── SPEC.md             normative v2 specification
-├── PROTOCOL.md         narrative walkthrough with flow diagrams
-├── WHY.md              postmortem of v1 (adaptor-sig / PoA) and rationale for v2
-├── CHANGELOG.md
-├── LICENSE             MIT
-└── packages/
-    ├── core/           @oc-lock/core     - envelope format, seal/unseal
-    ├── crypto/         @oc-lock/crypto   - ECDH, HKDF, AEAD primitives
-    └── device/         @oc-lock/device   - device-key binding + Nostr directory
-```
+- [`orangecheck/oc-packages`](https://github.com/orangecheck/oc-packages) — the `@orangecheck/lock-*` packages live here, alongside the rest of the OrangeCheck SDK.
+- [`orangecheck/oc-lock-web`](https://github.com/orangecheck/oc-lock-web) — reference web client.
+- [`orangecheck/oc-web`](https://github.com/orangecheck/oc-web) — OrangeCheck site.
 
 ## Status
 
-v2.0 — spec-stable, reference implementation in `packages/`. The web client lives in a separate repo: [`orangecheck/oc-lock-web`](https://github.com/orangecheck/oc-lock-web).
+v2.0 — spec-stable.
 
 ## License
 
-MIT
+The specification and prose are MIT; see [LICENSE](./LICENSE). The reference implementation in `oc-packages` is also MIT.
