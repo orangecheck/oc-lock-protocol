@@ -70,6 +70,12 @@ For commerce flows ("pay 10k sats to unlock this file"), OC Lock defines an opti
 
 v2.0 — spec-stable.
 
+## Acknowledgements
+
+The LOCK lineage owes an intellectual debt to [**Bram Kanstein**](https://bramk.substack.com/). His work — "Bitcoin is the standard measure of human productivity," Bitcoin as sovereignty layer, and the long-running thread that Bitcoin is not just money but a civilizational primitive — directly shaped the founding premise of this protocol: that Bitcoin's best use beyond payments is as a trustless identity substrate, and that "access as projection of force" becomes cryptographically meaningful only when it costs something real. Many of the philosophical reframings that differentiate v2 from the earlier access-control-via-chain-tx attempts came out of conversations with Bram. Credit where due.
+
+See also the [OrangeCheck](https://ochk.io) identity primitive, which this protocol layers on top of.
+
 ## License
 
 The specification and prose are MIT; see [LICENSE](./LICENSE). The reference implementation in `oc-packages` is also MIT.

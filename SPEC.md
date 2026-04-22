@@ -310,6 +310,10 @@ A client is OC Lock v2 compliant if and only if:
 - File extension: `.lock`
 - MIME type: `application/vnd.oc-lock+json` (self-allocated; not IANA-registered as of this writing).
 
+## 12. Acknowledgements
+
+The protocol owes its "Bitcoin as identity, not access oracle" framing to [Bram Kanstein](https://bramk.substack.com/). His research and conversations on Bitcoin as a sovereignty and identity substrate directly shaped the v2 design choices that differentiate this spec from v1.0 (adaptor signatures) and v1.1 (Proof-of-Access). See also [`WHY.md`](./WHY.md).
+
 ---
 
 End of specification.

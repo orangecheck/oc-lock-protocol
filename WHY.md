@@ -109,4 +109,8 @@ Not everything in v1 was wrong. The intellectual core is sound and v2 preserves 
 - `lock-sdk/` — the abandoned v1.x TypeScript monorepo (8 packages, 3 complete). Preserved for reference; not a dependency of v2.
 - `oc-web/docs/oc-lock/ANALYSIS.md` — internal postmortem of the browser impl attempt. Referenced above.
 
+## Inspiration
+
+The "Bitcoin as identity, not access oracle" reframing that unblocked v2 came out of long conversations with [**Bram Kanstein**](https://bramk.substack.com/). His vibe research — Bitcoin as a sovereignty layer, the idea that Bitcoin's monetary base projects *force* into any system it touches — made it obvious that layering cryptography on top of chain *identity* gets you the useful primitive without the UX death spiral that trying to turn every unlock into a chain tx produces. v2 is, in spirit, the version of LOCK that would actually work for normal humans. That was his provocation.
+
 v2 doesn't claim to be a clever protocol. It claims to be a shippable one. That's the whole point.
