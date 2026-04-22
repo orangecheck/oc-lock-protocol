@@ -1,0 +1,78 @@
+{
+  "description": "three recipients — tests device_id canonical sort",
+  "inputs": {
+    "plaintext": "broadcast",
+    "recipients": [
+      {
+        "address": "bc1qdave",
+        "device_id": "dave-dev",
+        "device_pk": "c30d2af150c75796d32f3323bafb10f3854d90a57dd49242a0d43041698ee078",
+        "device_sk": "eda87bdbb77fa39bbbccfda7e8f0eb306a2a437c086c3cc26df2dff0d236e51e"
+      },
+      {
+        "address": "bc1qbob",
+        "device_id": "bob-dev",
+        "device_pk": "34184b74df55c525d39c0ec4cfa82c562b0c959218018cb2f0890432c12eb159",
+        "device_sk": "bfd56d9584c9ca46019c07adb47bcae820f8d1d88e7779a52ebf362dcdc14220"
+      },
+      {
+        "address": "bc1qcarol",
+        "device_id": "carol-dev",
+        "device_pk": "53a5285b054bd4b7f99f982f09bf9735ec0956da988e76a24428eb1d13368e13",
+        "device_sk": "f535688fa08948c6885365450986326a5294c9093cd0a58672997e5555cbdd88"
+      }
+    ],
+    "expected_sig_value": "ZmFrZS1zaWduYXR1cmU="
+  },
+  "expected": {
+    "envelope": {
+      "v": 2,
+      "kind": "identity",
+      "id": "910fc6b43e56f412d2cdd925e41adf234fde409a5d1b75aaaa5c72c4538d9376",
+      "alg": {
+        "kem": "x25519",
+        "aead": "aes-256-gcm",
+        "kdf": "hkdf-sha256"
+      },
+      "from": {
+        "address": "bc1qalice"
+      },
+      "recipients": [
+        {
+          "address": "bc1qdave",
+          "device_id": "dave-dev",
+          "device_pk": "c30d2af150c75796d32f3323bafb10f3854d90a57dd49242a0d43041698ee078",
+          "eph_pk": "ca79aa988eca20c9250c66172d4a3d18206585809262ed70c4b935348060ad05",
+          "wrapped_key": "RDH5SUduISNHpvMFD2WAvZU_xu7DzeVNjLk6ftIxE7AWdCIuYgRQKvamKQsGzLHi",
+          "nonce_kek": "20895e72220ef04d4d8ede5c"
+        },
+        {
+          "address": "bc1qbob",
+          "device_id": "bob-dev",
+          "device_pk": "34184b74df55c525d39c0ec4cfa82c562b0c959218018cb2f0890432c12eb159",
+          "eph_pk": "6013e4850c3a877751702979887cd1f637b161f0f56af14293704affd6470977",
+          "wrapped_key": "y7ify3DgKQDHtHGTul3O_z1lzU9GxjJOdxoftxn9bxEbNGy2bJb8Uw_yzLYlkANU",
+          "nonce_kek": "b5c6dbfe2f099c84e1f96540"
+        },
+        {
+          "address": "bc1qcarol",
+          "device_id": "carol-dev",
+          "device_pk": "53a5285b054bd4b7f99f982f09bf9735ec0956da988e76a24428eb1d13368e13",
+          "eph_pk": "e7b3c8f348edf38ac876f79bd34ebcf3389c26354a13510e9ad199baab497e41",
+          "wrapped_key": "NdNCodhm4ETsRiJMMOkhBYzeX4nJdKFx707Yi-VclODM0Fo-025ExanvOwSb5DbL",
+          "nonce_kek": "cc16c147b70a5052de9b37d2"
+        }
+      ],
+      "ciphertext": "u4CIVchnchTgV5SHX2Hf18h3lqfeW7JBPA",
+      "nonce_ct": "3d06da1f1b92ff3abcaab40e",
+      "created_at": "2026-04-22T21:44:22.428Z",
+      "expires_at": null,
+      "payment": null,
+      "sig": {
+        "alg": "bip322",
+        "pubkey": "bc1qalice",
+        "value": "ZmFrZS1zaWduYXR1cmU="
+      }
+    }
+  }
+}

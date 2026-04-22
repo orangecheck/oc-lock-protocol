@@ -1,0 +1,50 @@
+{
+  "description": "envelope with expiry",
+  "inputs": {
+    "plaintext": "expires soon",
+    "recipients": [
+      {
+        "address": "bc1qbob",
+        "device_id": "bob-dev",
+        "device_pk": "34184b74df55c525d39c0ec4cfa82c562b0c959218018cb2f0890432c12eb159",
+        "device_sk": "bfd56d9584c9ca46019c07adb47bcae820f8d1d88e7779a52ebf362dcdc14220"
+      }
+    ],
+    "expected_sig_value": "ZmFrZS1zaWduYXR1cmU="
+  },
+  "expected": {
+    "envelope": {
+      "v": 2,
+      "kind": "identity",
+      "id": "0e20dabf717accd746ad7feb1240d6e2e4aedffd71b74718d10270537da2514d",
+      "alg": {
+        "kem": "x25519",
+        "aead": "aes-256-gcm",
+        "kdf": "hkdf-sha256"
+      },
+      "from": {
+        "address": "bc1qalice"
+      },
+      "recipients": [
+        {
+          "address": "bc1qbob",
+          "device_id": "bob-dev",
+          "device_pk": "34184b74df55c525d39c0ec4cfa82c562b0c959218018cb2f0890432c12eb159",
+          "eph_pk": "1d3e0cd763cc320c91b31aa440228bcde98eb1cc56d4b527b1550165531c043c",
+          "wrapped_key": "6fgZnnssOKnvTn6emR-cHvTVxJBBW_dpkSP05K4dXTe0HxbX5ulMeZohmvKX0fKW",
+          "nonce_kek": "cfb756de1b76306475cc64be"
+        }
+      ],
+      "ciphertext": "XawwqSDBIi-yKk31f8iGZUEn8z-Og8CFAhMfKQ",
+      "nonce_ct": "b4c7136d318def881a2116b4",
+      "created_at": "2026-04-22T21:44:22.433Z",
+      "expires_at": "2099-12-31T23:59:59.999Z",
+      "payment": null,
+      "sig": {
+        "alg": "bip322",
+        "pubkey": "bc1qalice",
+        "value": "ZmFrZS1zaWduYXR1cmU="
+      }
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "description": "single-recipient identity-mode minimal",
+  "inputs": {
+    "plaintext": "hello bob",
+    "recipients": [
+      {
+        "address": "bc1qbob",
+        "device_id": "bob-dev",
+        "device_pk": "34184b74df55c525d39c0ec4cfa82c562b0c959218018cb2f0890432c12eb159",
+        "device_sk": "bfd56d9584c9ca46019c07adb47bcae820f8d1d88e7779a52ebf362dcdc14220"
+      }
+    ],
+    "expected_sig_value": "ZmFrZS1zaWduYXR1cmU="
+  },
+  "expected": {
+    "envelope": {
+      "v": 2,
+      "kind": "identity",
+      "id": "1ed9375d37bc84e4163d16d1a55fd07eef065db10f46eb116cae0da6c8900414",
+      "alg": {
+        "kem": "x25519",
+        "aead": "aes-256-gcm",
+        "kdf": "hkdf-sha256"
+      },
+      "from": {
+        "address": "bc1qalice"
+      },
+      "recipients": [
+        {
+          "address": "bc1qbob",
+          "device_id": "bob-dev",
+          "device_pk": "34184b74df55c525d39c0ec4cfa82c562b0c959218018cb2f0890432c12eb159",
+          "eph_pk": "400b3124d828c9f6b467cb86801925cb3f8d008273e3e25c87307cc214aaaa30",
+          "wrapped_key": "FSa1lyEK8H-3M06iHU3b88ktHflnfc914Nbh38yocvGCCIP8sXFpI2Rho_AFgzUb",
+          "nonce_kek": "641fec72121024f5a8edeb19"
+        }
+      ],
+      "ciphertext": "M_CnmyV2sJA-3fCuV1lZ9hBR7DFYDw7RnQ",
+      "nonce_ct": "edf26509f0c7063a183449e6",
+      "created_at": "2026-04-22T21:44:22.423Z",
+      "expires_at": null,
+      "payment": null,
+      "sig": {
+        "alg": "bip322",
+        "pubkey": "bc1qalice",
+        "value": "ZmFrZS1zaWduYXR1cmU="
+      }
+    }
+  }
+}

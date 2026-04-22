@@ -1,0 +1,51 @@
+{
+  "description": "envelope with hint",
+  "inputs": {
+    "plaintext": "see the hint",
+    "recipients": [
+      {
+        "address": "bc1qbob",
+        "device_id": "bob-dev",
+        "device_pk": "34184b74df55c525d39c0ec4cfa82c562b0c959218018cb2f0890432c12eb159",
+        "device_sk": "bfd56d9584c9ca46019c07adb47bcae820f8d1d88e7779a52ebf362dcdc14220"
+      }
+    ],
+    "expected_sig_value": "ZmFrZS1zaWduYXR1cmU="
+  },
+  "expected": {
+    "envelope": {
+      "v": 2,
+      "kind": "identity",
+      "id": "0b7ad097ae4c5cc767fc0b688e8ed1f737676bae809ef235fab9926cf6d0d7f9",
+      "alg": {
+        "kem": "x25519",
+        "aead": "aes-256-gcm",
+        "kdf": "hkdf-sha256"
+      },
+      "from": {
+        "address": "bc1qalice"
+      },
+      "recipients": [
+        {
+          "address": "bc1qbob",
+          "device_id": "bob-dev",
+          "device_pk": "34184b74df55c525d39c0ec4cfa82c562b0c959218018cb2f0890432c12eb159",
+          "eph_pk": "26e8ecaaa5e2f1807bd3fbe2413383909d68a1f0c9dbf6b5e076e10a89bdaf75",
+          "wrapped_key": "JuCdES9OdXifjQtPAeWW6BiMWvSlhQf41t8wvpYKC104ywDHjl7QL3G_EGFlu0tD",
+          "nonce_kek": "39a58c399f60205f68797338"
+        }
+      ],
+      "ciphertext": "7SJcx6QM0O5qXIQEAdoDhaok8e0l_2JvkOV65g",
+      "nonce_ct": "c67fc98c21a04a64c05f71da",
+      "hint": "greeting.txt",
+      "created_at": "2026-04-22T21:44:22.434Z",
+      "expires_at": null,
+      "payment": null,
+      "sig": {
+        "alg": "bip322",
+        "pubkey": "bc1qalice",
+        "value": "ZmFrZS1zaWduYXR1cmU="
+      }
+    }
+  }
+}
