@@ -21,18 +21,22 @@ This repository is the **normative protocol specification**. No code lives here 
 
 ## Reference implementation
 
-The TypeScript reference implementation is published as three npm packages, maintained in the `oc-packages` monorepo:
+The TypeScript reference implementation is published to **npm**, maintained in the `oc-packages` monorepo:
 
-| Package | Directory | Purpose |
+| Package | npm | Purpose |
 |---|---|---|
-| [`@orangecheck/lock-crypto`](https://github.com/orangecheck/oc-packages/tree/main/lock-crypto) | `lock-crypto/` | X25519 ECDH + HKDF-SHA256 + AES-256-GCM primitives. |
-| [`@orangecheck/lock-core`](https://github.com/orangecheck/oc-packages/tree/main/lock-core) | `lock-core/` | Envelope canonicalization, `seal()`, `unseal()`. |
-| [`@orangecheck/lock-device`](https://github.com/orangecheck/oc-packages/tree/main/lock-device) | `lock-device/` | Device-key binding statements + Nostr kind-30078 publication. |
+| [`@orangecheck/lock-crypto`](https://www.npmjs.com/package/@orangecheck/lock-crypto) | ![npm](https://img.shields.io/npm/v/@orangecheck/lock-crypto?label=) | X25519 ECDH + HKDF-SHA256 + AES-256-GCM primitives. |
+| [`@orangecheck/lock-core`](https://www.npmjs.com/package/@orangecheck/lock-core) | ![npm](https://img.shields.io/npm/v/@orangecheck/lock-core?label=) | Envelope canonicalization, `seal()`, `unseal()`. Loads `test-vectors/` for conformance. |
+| [`@orangecheck/lock-device`](https://www.npmjs.com/package/@orangecheck/lock-device) | ![npm](https://img.shields.io/npm/v/@orangecheck/lock-device?label=) | Device-key binding statements + Nostr kind-30078 publication. |
 
 ```
 npm i @orangecheck/lock-core
-# (pulls lock-crypto transitively)
+# (pulls @orangecheck/lock-crypto transitively)
 ```
+
+## Test vectors
+
+The [`test-vectors/`](./test-vectors/) directory holds cross-implementation conformance fixtures. Each vector is a fixed envelope plus the device secrets needed to decrypt it. A conforming implementation unseals every vector envelope against every listed recipient and recovers the stated plaintext. See [`test-vectors/README.md`](./test-vectors/README.md).
 
 ## Reference web client
 
