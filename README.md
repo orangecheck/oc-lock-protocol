@@ -1,152 +1,55 @@
-# LOCK Protocol v1.0
+# OC Lock
 
-**Bitcoin-enforced encryption for trustless, end-to-end encrypted communication.**
+**Bitcoin-identity-bound end-to-end encryption.**
 
-## What is LOCK?
+OC Lock is a protocol for encrypting messages and files such that only the holder of a specific Bitcoin address can decrypt them — without wallet-adaptor crypto tricks, without on-chain transactions for the normal case, and without publishing raw pubkeys out-of-band.
 
-LOCK is a protocol that uses Bitcoin's blockchain to enforce access control for encrypted data. Vault files can be shared publicly, but only the intended recipient can decrypt them by performing a Bitcoin transaction.
+It is the successor to the original **LOCK Protocol** (2024–2025), which tried to enforce access control through adaptor signatures and proof-of-access Bitcoin transactions. That design was cryptographically interesting and practically dead on arrival: recipients had to publish BIP-322 signatures before they could receive anything, senders had to broadcast binding transactions, unlocks required PSBT round-trips with desktop wallets, and the WASM crypto libraries needed for adaptor signatures simply didn't exist for the browser. See [`WHY.md`](./WHY.md) for a full postmortem.
 
-**Key insight:** Decryption keys are cryptographically locked on the blockchain using adaptor signatures. The key is only revealed when the recipient spends a specific Bitcoin UTXO.
+OC Lock v2 starts from a different premise: **onboarding is the protocol**. If a user can't lock or unlock a message in under a minute with a wallet they already have, nothing else matters.
 
-## Core Features
+## How it works (one paragraph)
 
-- ✅ **Trustless** - No servers, no third parties, no trust required
-- ✅ **Public vaults** - .lock files can be shared openly without security risk
-- ✅ **Bitcoin-enforced** - Decryption requires a Bitcoin transaction
-- ✅ **End-to-end encrypted** - Only sender and recipient can access content
-- ✅ **Air-gapped compatible** - Works with hardware wallets via PSBT
+Every OC Lock user has a Bitcoin address and an [OrangeCheck](https://ochk.io) attestation bound to it. On first use in a browser, the user generates an X25519 device keypair and binds it to their Bitcoin identity with a single BIP-322 signature. The public half of that device key is published to Nostr (kind `30078`, deterministic d-tag). To send a message, you fetch the recipient's device pubkey from Nostr by their Bitcoin address or OC attestation id, derive a shared secret via X25519, and encrypt with AES-256-GCM. To receive, you look up your own device key in IndexedDB and decrypt. No servers. No chain transactions. No PSBT.
 
-## How It Works
+For commerce flows ("pay 10k sats to unlock this file"), OC Lock defines an optional **payment-gated mode** where the vault's content key is held by a relay until a Bitcoin payment to a specific address is observed. The relay is explicit, trust-scoped, and replaceable.
 
-### 1. Recipient Setup
-Recipient creates a BIP-322 signature of their Bitcoin address and publishes it. This reveals their public key while proving address ownership.
+## Layers
 
-### 2. Sender Creates Vault
-1. Generate random secret `k`
-2. Encrypt files with `k` (creates SEAL)
-3. Encrypt metadata using ECDH with recipient's public key
-4. Create Challenge UTXO (Taproot, ~1000 sats)
-5. Create adaptor signature that locks `k` to the Challenge UTXO
-6. Send .lock file to recipient
-
-### 3. Recipient Unseals Vault
-1. Decrypt metadata (proves they're the intended recipient)
-2. Spend Challenge UTXO to their own address (claims the sats)
-3. Extract `k` from the on-chain signature
-4. Decrypt SEAL with `k`
-
-## Security Model
-
-**Cryptographic guarantees:**
-- Only recipient can decrypt (requires their private key)
-- Vault files can be public (all data is encrypted)
-- No key escrow (decryption key extracted from blockchain)
-- Forward secrecy (each vault uses unique `k`)
-
-**Trust model:**
-- No trusted third parties
-- No server infrastructure
-- No coordination required between sender and recipient
-
-## Requirements
-
-### For Senders
-- Recipient's public key (from BIP-322 signature)
-- Bitcoin wallet with Taproot support
-- ~1000 sats for Challenge UTXO
-
-### For Recipients
-- Published BIP-322 signature (reveals public key)
-- Bitcoin wallet with Taproot support
-- Blockchain access (to broadcast transaction and extract signature)
-
-### Technical
-- Desktop or air-gapped wallets (browser wallets don't support adaptor signatures)
-- WASM library for `adaptor_extract()`
-- Taproot (P2TR) support
-- PSBT support for air-gapped workflows
-
-## Use Cases
-
-- **Encrypted messaging** - Send messages only recipient can read
-- **Secure file sharing** - Share files with cryptographic access control
-- **Dead drops** - Leave encrypted data in public locations
-- **Whistleblowing** - Anonymous encrypted submissions
-- **Digital inheritance** - Encrypted data with Bitcoin-based access
-
-## Documentation
-
-- **[PROTOCOL.md](./PROTOCOL.md)** - Complete protocol overview and flow
-- **[SPEC.md](./SPEC.md)** - Technical specification and algorithms
-
-## Quick Start
-
-### Recipient: Publish Your Identity
-
-```bash
-# Create BIP-322 signature of your address
-bitcoin-cli signmessage "bc1q..." "LOCK-IDENTITY"
-
-# Publish signature (Nostr, website, QR code, etc.)
+```
+┌─────────────────────────────────────────────────────────┐
+│  oc-lock-web      sender UI, recipient UI, relay UI     │
+├─────────────────────────────────────────────────────────┤
+│  @oc-lock/core    seal/unseal, envelope canonicalization │
+│  @oc-lock/crypto  X25519 ECDH, HKDF, AES-256-GCM         │
+│  @oc-lock/device  device keypair binding + Nostr publish │
+├─────────────────────────────────────────────────────────┤
+│  OrangeCheck      identity + sybil resistance            │
+│  Nostr            device key directory (kind 30078)      │
+│  Bitcoin          address ownership (BIP-322)            │
+└─────────────────────────────────────────────────────────┘
 ```
 
-### Sender: Create Vault
+## Repo layout
 
-```javascript
-import { createVault } from 'lock-protocol';
-
-const vault = await createVault({
-  recipient_pubkey: extractPubkeyFromBIP322(signature),
-  payload: files,
-  challenge_amount: 1000
-});
-
-// Send vault.lock file to recipient
 ```
-
-### Recipient: Unseal Vault
-
-```javascript
-import { unsealVault } from 'lock-protocol';
-
-const payload = await unsealVault({
-  vault_file: 'vault.lock',
-  recipient_privkey: privkey,
-  wallet: bitcoinWallet
-});
+oc-lock/
+├── README.md           this file
+├── SPEC.md             normative v2 specification
+├── PROTOCOL.md         narrative walkthrough with flow diagrams
+├── WHY.md              postmortem of v1 (adaptor-sig / PoA) and rationale for v2
+├── CHANGELOG.md
+├── LICENSE             MIT
+└── packages/
+    ├── core/           @oc-lock/core     - envelope format, seal/unseal
+    ├── crypto/         @oc-lock/crypto   - ECDH, HKDF, AEAD primitives
+    └── device/         @oc-lock/device   - device-key binding + Nostr directory
 ```
-
-## Comparison to Alternatives
-
-| Feature | LOCK | PGP | Signal | Nostr DMs |
-|---------|------|-----|--------|-----------|
-| Trustless | ✅ | ✅ | ❌ | ⚠️ |
-| Public vaults | ✅ | ✅ | ❌ | ❌ |
-| Bitcoin-enforced | ✅ | ❌ | ❌ | ❌ |
-| No key exchange | ✅ | ❌ | ❌ | ❌ |
-| Air-gapped | ✅ | ✅ | ❌ | ❌ |
-
-## Future: Proof-of-Access (PoA)
-
-The current protocol enforces that only the recipient can decrypt. Future versions may add cryptographically-enforced conditions:
-
-- Amount requirements (must spend X sats)
-- Time-locks (cannot unseal before block Y)
-- Multi-recipient vaults
-- Unlock limits
-
-This is an open research problem requiring the decryption key to be bound to a separate PoA transaction.
 
 ## Status
 
-**Version:** 1.0  
-**Status:** Specification complete, implementation in progress
+v2.0 — spec-stable, reference implementation in `packages/`. The web client lives in a separate repo: [`orangecheck/oc-lock-web`](https://github.com/orangecheck/oc-lock-web).
 
 ## License
 
 MIT
-
-## Contributing
-
-LOCK is an open protocol. Implementations, improvements, and research contributions are welcome.
-

@@ -1,0 +1,38 @@
+{
+  "name": "@oc-lock/core",
+  "version": "2.0.0",
+  "description": "OC Lock envelope format, canonicalization, seal, and unseal.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./canonical": {
+      "types": "./dist/canonical.d.ts",
+      "default": "./dist/canonical.js"
+    },
+    "./seal": {
+      "types": "./dist/seal.d.ts",
+      "default": "./dist/seal.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "default": "./dist/types.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@oc-lock/crypto": "2.0.0"
+  },
+  "license": "MIT"
+}

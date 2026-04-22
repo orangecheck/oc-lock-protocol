@@ -1,0 +1,17 @@
+node_modules/
+dist/
+build/
+packages/*/src/**/*.js
+packages/*/src/**/*.js.map
+packages/*/src/**/*.d.ts
+packages/*/src/**/*.d.ts.map
+.DS_Store
+.env
+.env.local
+*.tsbuildinfo
+coverage/
+.vitest-cache/
+.turbo/
+yarn-error.log
+pnpm-debug.log*
+package-lock.json

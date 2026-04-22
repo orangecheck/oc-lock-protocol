@@ -1,0 +1,27 @@
+{
+  "name": "@oc-lock/device",
+  "version": "2.0.0",
+  "description": "OC Lock device key binding and Nostr directory publication.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@noble/curves": "^1.6.0",
+    "@oc-lock/crypto": "2.0.0"
+  },
+  "license": "MIT"
+}

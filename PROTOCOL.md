@@ -1,222 +1,161 @@
-# LOCK Protocol v1.0
+# OC Lock — Protocol walkthrough
 
-## Overview
+This is a narrative companion to [SPEC.md](./SPEC.md). If you want the normative rules, read the spec. If you want to understand *why* and *how*, read this.
 
-LOCK is a Bitcoin-enforced encryption protocol that enables trustless, end-to-end encrypted communication and file sharing. Vault files can exist publicly, but only the intended recipient can decrypt them by performing a Bitcoin transaction.
+## The problem
 
-**Core principle:** Decryption keys are cryptographically locked on the Bitcoin blockchain using adaptor signatures. Only the recipient can extract the key by spending a Challenge UTXO.
+> "I want to send Alice an encrypted message, and I want to prove to her it's from me, and I want to know that only she — specifically, the holder of her Bitcoin address — can open it."
 
-## Key Features
+That is the user story OC Lock serves. It sounds simple. In practice, every Bitcoin-native attempt at solving it has failed on UX:
 
-- **Trustless encryption** - No third parties, no servers, no trust required
-- **Public vault files** - .lock files can be shared openly without compromising security
-- **Bitcoin-enforced access** - Decryption requires a Bitcoin transaction
-- **End-to-end encrypted** - Only sender and recipient can access content
-- **Air-gapped compatible** - Works with desktop and hardware wallets via PSBT
+- **PGP**: works, but requires key management mastery that ~1% of users have.
+- **LOCK v1 (adaptor signatures)**: elegant on paper, but no browser-compatible WASM library ever shipped and the desktop PSBT loop was unusable for non-technical users.
+- **LOCK v1.1 (Proof-of-Access via Bitcoin TX)**: removed adaptor signatures but still required every vault creation and every unlock to be a Bitcoin transaction. 10-minute confirmations, fee estimation, and exact-amount matching killed adoption.
 
-## Protocol Flow
+OC Lock v2 makes the boring choice: **treat Bitcoin as an identity system, not an access-control oracle**. The chain proves who owns what address; the encryption is plain old authenticated public-key crypto. Payment-gated access is preserved as an optional layer, not the baseline.
 
-### 1. Recipient Identity Setup
-
-The recipient must publish their public key before receiving vaults.
-
-**Steps:**
-1. Recipient creates a BIP-322 signature of their Bitcoin address
-2. Recipient publishes this signature (website, Nostr, QR code, etc.)
-3. Anyone can extract the recipient's public key from this signature
-
-**Why:** Bitcoin addresses are hashes of public keys. To encrypt to an address, the sender needs the actual public key. The BIP-322 signature reveals it while proving address ownership.
-
-### 2. Vault Creation (Sender)
-
-**Steps:**
-
-1. **Generate encryption secret**
-   - Create random 32-byte secret `k`
-
-2. **Encrypt the payload (SEAL)**
-   - Encrypt files/messages using AES-256-GCM with `k` as the key
-   - This creates the SEAL (encrypted payload)
-
-3. **Encrypt metadata**
-   - Derive shared secret: `shared_secret = ECDH(sender_privkey, recipient_pubkey)`
-   - Derive metadata key: `metadata_key = HKDF(shared_secret || seal_hash, salt="LOCK-METADATA", info="metadata-v1")`
-   - Encrypt vault metadata (file names, descriptions, etc.) with this key
-
-4. **Create Challenge UTXO**
-   - Generate Taproot (P2TR) address
-   - Send small amount (~1000 sats) to this address
-   - Record the UTXO txid in vault metadata
-
-5. **Create adaptor signature**
-   - Create adaptor signature for spending Challenge UTXO using secret `k`
-   - This signature commits to `k` without revealing it
-   - Only someone who can complete this signature can extract `k`
-
-6. **Assemble vault file**
-   - Package: encrypted SEAL + encrypted metadata + Challenge UTXO info + adaptor signature template
-   - Save as .lock file
-
-7. **Send vault to recipient**
-   - Email, file share, Nostr DM, USB drive, public hosting, etc.
-
-### 3. Vault Reception (Recipient)
-
-**Steps:**
-
-1. **Receive .lock file**
-   - File can be transmitted through any channel (even public/untrusted)
-
-2. **Decrypt metadata**
-   - Derive shared secret: `shared_secret = ECDH(recipient_privkey, sender_pubkey)`
-   - Derive metadata key: `metadata_key = HKDF(shared_secret || seal_hash, salt="LOCK-METADATA", info="metadata-v1")`
-   - Decrypt metadata to see vault contents description
-
-3. **View Challenge UTXO**
-   - See Challenge UTXO txid and amount
-   - Verify UTXO exists on blockchain
-   - Note: Recipient will claim these sats when unsealing
-
-### 4. Unsealing (Recipient)
-
-**Steps:**
-
-1. **Create Challenge spend transaction**
-   - Input: Challenge UTXO
-   - Output: Recipient's address (claim the sats)
-   - Use adaptor signature template from vault file
-
-2. **Sign and broadcast**
-   - Complete the adaptor signature (requires recipient's private key)
-   - Broadcast transaction
-   - Wait for confirmation
-
-3. **Extract secret `k`**
-   - Retrieve confirmed transaction from blockchain
-   - Extract final signature from transaction
-   - Compute: `k = adaptor_extract(final_signature, adaptor_signature_template)`
-   - This uses WASM cryptographic library
-
-4. **Decrypt SEAL**
-   - Use extracted `k` to decrypt the SEAL
-   - Access encrypted files/messages
-
-## Security Properties
-
-### Cryptographic Guarantees
-
-- **Only recipient can decrypt** - Requires recipient's private key for both metadata decryption and Challenge UTXO spending
-- **Vault files can be public** - All sensitive data is encrypted; public exposure doesn't compromise security
-- **No key escrow** - Decryption key `k` is never transmitted; it's extracted from blockchain
-- **Forward secrecy** - Each vault uses unique `k`; compromise of one vault doesn't affect others
-- **Tamper-evident** - Any modification to vault file breaks decryption
-
-### Trust Model
-
-- **No trusted third parties** - Protocol is fully peer-to-peer
-- **No server infrastructure** - All validation happens client-side using Bitcoin blockchain
-- **No coordination required** - Sender and recipient don't need to be online simultaneously
-
-## Technical Requirements
-
-### Cryptographic Primitives
-
-- **ECDH** - Elliptic Curve Diffie-Hellman for metadata encryption
-- **HKDF-SHA256** - Key derivation function
-- **AES-256-GCM** - Authenticated encryption for SEAL
-- **Schnorr signatures (BIP-340)** - For adaptor signatures
-- **Taproot (P2TR)** - Required for Challenge UTXO
-
-### Wallet Requirements
-
-- **Desktop or air-gapped wallets** - Browser wallets don't support adaptor signatures
-- **Taproot support** - Must support P2TR addresses
-- **PSBT support** - For air-gapped signing workflows
-- **Custom signing** - Adaptor signature creation/completion (may require plugins)
-
-### Implementation Dependencies
-
-- **WASM library** - For `adaptor_extract()` function
-- **Bitcoin node access** - To verify transactions and extract signatures
-- **BIP-322 support** - For recipient identity signatures
-
-## Vault File Format
-
-### .lock File Structure
+## The mental model
 
 ```
-{
-  "version": 1,
-  "seal": {
-    "ciphertext": "<base64>",
-    "nonce": "<base64>",
-    "tag": "<base64>"
-  },
-  "metadata": {
-    "ciphertext": "<base64>",
-    "nonce": "<base64>",
-    "tag": "<base64>"
-  },
-  "challenge": {
-    "txid": "<hex>",
-    "vout": 0,
-    "amount": 1000,
-    "address": "<taproot_address>"
-  },
-  "adaptor": {
-    "template": "<base64>",
-    "pubkey": "<hex>"
-  }
-}
+  ┌──────────┐  sign binding  ┌──────────┐  publish   ┌──────────────────┐
+  │ Wallet   │──────────────→│ Browser  │───────────→│  Nostr directory  │
+  │ (UniSat, │ (BIP-322 once)│ device_pk│  kind 30078 │  keyed by bc1... │
+  │ Xverse…) │                │ (X25519) │            │                   │
+  └──────────┘                └──────────┘            └──────────────────┘
+                                                                 │
+                                                                 │ fetch by addr
+                                                                 ↓
+  ┌──────────┐                ┌──────────┐            ┌──────────────────┐
+  │ Sender's │  X25519 ECDH  │ content  │  encrypt   │  .lock envelope  │
+  │ browser  │──────────────→│  key     │───────────→│  (JSON, share    │
+  │          │                │          │            │   anywhere)      │
+  └──────────┘                └──────────┘            └──────────────────┘
 ```
 
-### Metadata Schema (Decrypted)
+Every user does exactly one "hard" thing, and only once: they sign a BIP-322 message with their Bitcoin wallet that binds a browser-generated X25519 key to their Bitcoin address. After that, sending and receiving are one click.
 
-```json
-{
-  "sender_pubkey": "<hex>",
-  "recipient_pubkey": "<hex>",
-  "created_at": 1234567890,
-  "seal_hash": "<hex>",
-  "description": "Optional vault description",
-  "file_count": 3,
-  "total_size": 1048576
-}
-```
+## Flow 1 — Alice sends Bob a message (identity mode)
 
-## Use Cases
+### Bob's one-time setup
 
-- **Encrypted messaging** - Send messages that only recipient can read
-- **Secure file sharing** - Share files with cryptographic access control
-- **Dead drops** - Leave encrypted data in public locations
-- **Time-delayed disclosure** - Vault files can be published now, unsealed later
-- **Whistleblowing** - Anonymous encrypted submissions to known recipients
-- **Digital inheritance** - Encrypted data with Bitcoin-based access control
+1. Bob visits `oc-lock.example` in a new browser.
+2. He enters his Bitcoin address (or signs in via OrangeCheck).
+3. The browser generates a fresh X25519 keypair. The secret half is stored in IndexedDB and never leaves.
+4. The browser builds a **binding statement**:
+   ```
+   oc-lock:device-bind:v2
+   address: bc1qalice...
+   device_pk: 7d2f...
+   device_id: a8b4...
+   created_at: 2026-04-22T14:03:11Z
+   ```
+5. Bob's wallet signs the statement with BIP-322. One signature prompt. One click.
+6. The browser publishes a Nostr event (kind 30078) containing the statement, the `device_pk`, and the signature. The event's `d` tag is `oc-lock:device:bc1qalice...` so anyone can find it by Bitcoin address.
 
-## Future: Proof-of-Access (PoA)
+Bob is now "addressable". Anyone who knows his Bitcoin address can send him an encrypted message without asking him anything.
 
-The current protocol enforces that only the recipient can decrypt. A future enhancement could add **Proof-of-Access (PoA)** rules that cryptographically enforce additional conditions:
+### Alice sends
 
-- **Amount conditions** - Recipient must spend X sats to unseal
-- **Time-locks** - Vault cannot be unsealed before block height Y
-- **Multi-recipient** - Multiple authorized addresses
-- **Unlock limits** - Vault can only be unsealed N times
+1. Alice types Bob's Bitcoin address into the "To" field.
+2. The app fetches Bob's device record from Nostr. Verifies the binding BIP-322 signature against `bc1qalice...`. If the signature doesn't match, the address is rejected with a clear error.
+3. Alice writes her message (or drops a file).
+4. The browser:
+   - Generates a random `content_key` (32 bytes)
+   - Encrypts the payload with AES-256-GCM using `content_key`
+   - Generates an ephemeral X25519 keypair
+   - Derives a key-encryption key via `HKDF(ECDH(eph_sk, bob_device_pk))`
+   - Wraps `content_key` under the KEK
+   - Signs the envelope with Alice's Bitcoin wallet (BIP-322 over the envelope id)
+5. The `.lock` envelope is a JSON object. Alice copies the link, pastes it in Signal/email/whatever, and sends it.
 
-**Challenge:** Cryptographically enforcing PoA rules requires binding the decryption key to a separate PoA transaction, not just the Challenge UTXO spend. This is an open research problem.
+### Bob receives
 
-**Current approach:** PoA rules could be implemented as client-side validation (non-cryptographic), where honest clients check conditions before allowing decryption. This provides UX guardrails but not cryptographic enforcement.
+1. Bob clicks the link.
+2. The app loads the envelope. It recomputes the envelope id and verifies Alice's signature against her Bitcoin address.
+3. The app finds Bob's `device_id` in the `recipients[]` array and reads his device secret from IndexedDB.
+4. It derives the shared secret, unwraps `content_key`, decrypts the payload.
+5. Message shown. Total on-screen time: < 3 seconds.
 
-## Comparison to Other Protocols
+No Bitcoin transaction was made. The chain proved only that Bob controls his address and that Alice controls hers. Everything else is ordinary crypto.
 
-| Feature | LOCK v1.0 | PGP/GPG | Signal | Nostr DMs |
-|---------|-----------|---------|--------|-----------|
-| Trustless | ✅ | ✅ | ❌ (servers) | ⚠️ (relays) |
-| Public vault files | ✅ | ✅ | ❌ | ❌ |
-| Bitcoin-enforced | ✅ | ❌ | ❌ | ❌ |
-| No key exchange | ✅ | ❌ | ❌ | ❌ |
-| Air-gapped compatible | ✅ | ✅ | ❌ | ❌ |
+## Flow 2 — Alice sells Bob a file (payment mode)
 
-## License
+Sometimes you want Bitcoin to do more than identity: you want "10k sats gets you this." Payment mode is how.
 
-MIT
+### Setup
 
+Alice runs (or trusts) a **relay**: a minimal web service that holds content keys on behalf of vaults and releases them upon observing confirmed Bitcoin payments. The relay has a long-lived X25519 device key. Its URL and device key are public.
+
+### Alice creates a payment-gated vault
+
+1. Alice chooses "payment-gated" in the app.
+2. She sets: amount = 10,000 sats, payment address = her `bc1qalice...`, relay = `https://oc-lock.example/relay`, confirmations = 1.
+3. The app encrypts the file with a fresh `content_key`.
+4. It wraps `content_key` for the **relay's** device key (not Bob's — Bob hasn't been chosen yet).
+5. It signs the envelope with Alice's Bitcoin wallet.
+6. Alice shares the link.
+
+Anyone with the link can see: sender, amount, payment address, relay. They cannot decrypt.
+
+### Bob unlocks
+
+1. Bob clicks the link. The app shows the price and the relay URL clearly.
+2. Bob pays 10k sats from his wallet to `bc1qalice...`. (The app shows a QR code and a mempool.space link.)
+3. Bob authenticates to the relay with OrangeCheck sign-in (BIP-322 challenge-response, same wallet).
+4. The app submits `{ envelope_id, tx_id }` to the relay.
+5. Relay checks: tx confirmed? right amount? right recipient? Then it unwraps `content_key` from its own device key, re-wraps it for Bob's device key (fetched from Nostr), and returns the new `recipients[]` entry.
+6. Bob's app decrypts normally.
+
+The relay is a trust anchor. It can refuse to release, refuse to verify, or collude with Alice. That's why its URL is always visible, why anyone can run one, and why future versions may replace it with DLC oracles.
+
+## Flow 3 — Multi-device and rotation
+
+Bob has a laptop and a phone. Each browser has its own device key. On first sign-in, each generates a new keypair and publishes a separate Nostr record with its own `device_id`. Senders fetching Bob's records get a list; they encrypt once per active device.
+
+To rotate: Bob's browser generates a new `device_sk`, signs a new binding statement, publishes a replacement event. Old envelopes addressed to the old `device_pk` are unreadable from the new device (the old secret is gone). Senders fetching Bob's record after rotation get only the new key.
+
+To abandon a device (laptop stolen): Bob publishes a revocation event from any of his other devices. Conforming senders refuse to encrypt to revoked records.
+
+## Flow 4 — Self-vault (password manager pattern)
+
+Alice can seal a vault to herself. Sender and recipient are both her Bitcoin address. The envelope's only `recipients[]` entry is her own device record. She can decrypt from any of her devices. This is the OC Lock equivalent of a password manager's master record, with no master password — the "password" is her Bitcoin wallet.
+
+## What's different from LOCK v1.1
+
+| Concern | LOCK v1.1 | OC Lock v2 |
+|---|---|---|
+| Sealing a vault | Requires on-chain binding TX | Purely local |
+| Unlocking a vault | Requires on-chain unlock TX with exact amount | Local decrypt (identity mode) or one payment TX (payment mode) |
+| Recipient onboarding | Must publish BIP-322 sig before receiving | Must publish device record once; reusable forever |
+| Wallet requirements | Must support PSBT export/import | Must support BIP-322 `signMessage` (all major wallets do) |
+| Encryption primitive | Embedded secret + "simplified" adaptor sig (broken) | X25519 ECDH + AES-256-GCM (standard, audited) |
+| Recovery | Rebinding TX required | Re-run device setup from any browser |
+| Metadata | Encrypted via ECDH w/ recipient pubkey | Same concept; device key is the pubkey |
+| Fees | User pays for every seal and every unlock | Zero fees in identity mode; one fee per unlock in payment mode |
+
+## What's still in common
+
+Both protocols share the core insight: **Bitcoin addresses are excellent identities.** A Bitcoin address is a hash of a public key bound to real-world stake (if you want sybil resistance, see OrangeCheck). Using Bitcoin as the identity layer for encryption is the right architectural move. v1 tried to make the chain do double duty as both identity and access oracle. v2 lets the chain be what it's good at.
+
+## What's layered from OrangeCheck
+
+OC Lock depends on OrangeCheck in two places:
+
+1. **Sybil-gated recipient inbox** (optional). A sender can require that their recipient hold an OrangeCheck attestation meeting thresholds ("only bonded recipients with 100k sats / 30 days"). Implemented by calling `@orangecheck/sdk#check` on the recipient's address before encrypting.
+2. **Sign-in for the relay and the web app**. OC Lock's web client uses OrangeCheck's sign-in-with-bitcoin flow verbatim: a BIP-322 challenge, a signed response, a JWT session. The same wallet that signs binding statements signs the relay auth challenge. No second identity system.
+
+Every OC Lock device record is also a valid OrangeCheck-adjacent artifact: it contains a BIP-322 signature over a canonical message that binds a Bitcoin address to key material. Attestation ids (SHA-256 of canonical message) can be computed over the binding statement, giving each device record a stable, verifiable identifier.
+
+## Anti-patterns we rejected
+
+- **Browser-wallet ECDH.** Bitcoin wallets don't expose ECDH. Nostr wallets do (NIP-04/44), but we don't want to require users to have a Nostr-native wallet. The device-key pattern sidesteps this cleanly.
+- **Deriving decryption keys from BIP-322 signatures.** Some Bitcoin signing schemes are deterministic (Schnorr BIP-340, ECDSA with RFC 6979), so a fixed-message signature could in principle seed a KDF. But wallet implementations vary, and a single non-deterministic wallet silently corrupts everyone's keys. We don't rely on it.
+- **Full Signal-protocol double ratchet.** Overkill for the primary use case (file drops, one-shot messages). Device-key rotation is coarser but adequate.
+- **Server-mandatory storage.** The web client optionally caches vault metadata for discovery, but every envelope is self-contained. A user can export their vault to a QR code, paper, USB, or IPFS and unseal anywhere.
+
+## Where to go next
+
+- Read [SPEC.md](./SPEC.md) for normative encoding rules.
+- Read [WHY.md](./WHY.md) for the v1 postmortem.
+- See [`packages/core`](./packages/core) for the reference TypeScript implementation.
+- Try the web client: [`orangecheck/oc-lock-web`](https://github.com/orangecheck/oc-lock-web).
