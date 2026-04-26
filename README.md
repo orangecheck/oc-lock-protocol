@@ -40,7 +40,7 @@ The [`test-vectors/`](./test-vectors/) directory holds cross-implementation conf
 
 ## Reference web client
 
-A live implementation of OC Lock v2 runs at **[oc-lock-web.vercel.app](https://oc-lock-web.vercel.app)**. Source: [`orangecheck/oc-lock-web`](https://github.com/orangecheck/oc-lock-web).
+A live reference implementation of OC Lock v2 runs at **[lock.ochk.io](https://lock.ochk.io)** (closed-source web client; the underlying protocol implementation is published as [`@orangecheck/lock-*`](https://www.npmjs.com/org/orangecheck) on npm).
 
 ## How it works (one paragraph)
 
@@ -52,7 +52,7 @@ For commerce flows ("pay 10k sats to unlock this file"), OC Lock defines an opti
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  oc-lock-web             sender UI, recipient UI, relay UI      │
+│  lock.ochk.io            sender UI, recipient UI, relay UI      │
 ├─────────────────────────────────────────────────────────────────┤
 │  @orangecheck/lock-core       seal/unseal, envelope canonical   │
 │  @orangecheck/lock-crypto     X25519 ECDH, HKDF, AES-256-GCM    │
@@ -67,8 +67,8 @@ For commerce flows ("pay 10k sats to unlock this file"), OC Lock defines an opti
 ## Related repositories
 
 - [`orangecheck/oc-packages`](https://github.com/orangecheck/oc-packages) — the `@orangecheck/lock-*` packages live here, alongside the rest of the OrangeCheck SDK.
-- [`orangecheck/oc-lock-web`](https://github.com/orangecheck/oc-lock-web) — reference web client.
-- [`orangecheck/oc-web`](https://github.com/orangecheck/oc-web) — OrangeCheck site.
+- [lock.ochk.io](https://lock.ochk.io) — hosted reference web client (closed-source).
+- [ochk.io](https://ochk.io) — OrangeCheck umbrella site.
 
 ## Status
 

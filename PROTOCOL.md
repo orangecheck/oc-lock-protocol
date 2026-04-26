@@ -158,4 +158,4 @@ Every OC Lock device record is also a valid OrangeCheck-adjacent artifact: it co
 - Read [SPEC.md](./SPEC.md) for normative encoding rules.
 - Read [WHY.md](./WHY.md) for the v1 postmortem.
 - See [`packages/core`](./packages/core) for the reference TypeScript implementation.
-- Try the web client: [`orangecheck/oc-lock-web`](https://github.com/orangecheck/oc-lock-web).
+- Try the hosted web client at [lock.ochk.io](https://lock.ochk.io).
