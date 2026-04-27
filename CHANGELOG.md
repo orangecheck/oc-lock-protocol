@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased] — 2026-04
 
 ### Added
+- **`LIFECYCLE.md`** — normative companion document specifying device-record rotation and revocation (extending `SPEC.md` §3.5) and the non-revocability of sealed envelopes (bounded only by `expires_at`). Clarifies four edge cases for `device_pk == "revoked"`: rotation/revocation race ordering, recovery via fresh `device_id`, the impossibility of unsealing already-delivered envelopes by revoking their device record, and per-device scoping. Reaffirms that dashboard-local hide flags and NIP-09 deletion-request events have no protocol force. No protocol changes; clarification only.
 - `SECURITY.md` with threat model, trust assumptions, and report channel.
 - §12 "Acknowledgements" in SPEC crediting Bram Kanstein for the "Bitcoin as identity, not access oracle" reframing that shaped v2.
 

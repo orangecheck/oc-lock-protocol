@@ -17,6 +17,7 @@ This repository is the **normative protocol specification**. No code lives here 
 | [`SPEC.md`](./SPEC.md) | The normative v2 specification — envelope format, canonicalization, binding statements, error codes, compliance checklist. |
 | [`PROTOCOL.md`](./PROTOCOL.md) | Narrative walkthrough with flow diagrams (identity mode, payment mode, multi-device, self-vaults). |
 | [`WHY.md`](./WHY.md) | Postmortem of the original LOCK Protocol. Why v1 failed. What v2 keeps and discards. |
+| [`LIFECYCLE.md`](./LIFECYCLE.md) | Normative lifecycle stance — device-record rotation (NIP-33 replacement) and revocation (`device_pk == "revoked"`, in-spec); sealed envelopes are non-revocable, bounded only by `expires_at`. |
 | [`CHANGELOG.md`](./CHANGELOG.md) | Version history. |
 
 ## Reference implementation
