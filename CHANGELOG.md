@@ -4,6 +4,13 @@ All notable changes to the OC Lock protocol and reference SDK.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased] — 2026-06
+
+### Added
+- **§4.5 Chat and re-wrap mode** and **§4.6 Seal mode** — OC Chat is a mode of OC Lock. Two new envelope `kind` values (`"chat"`, `"chat-seal"`) and the normative **recipient-exclusion rule**: for chat kinds, `recipients[]` is excluded from both the AEAD AAD and the signed `id`, making an envelope re-keyable (a payment relay or seal beacon can re-wrap for a new recipient without breaking the `id`, the BIP-322 signature, or the ciphertext tag). The `"chat-seal"` `seal` object carries a block-height timelock released by a **named** beacon — beacon-enforced policy, not consensus; the `cltv` anchor is the reserved consensus-enforced upgrade path. Full detail in [`oc-chat-protocol`](https://github.com/orangecheck/oc-chat-protocol).
+- §6 error codes `E_BLOCK_UNMET`, `E_BEACON_UNAVAILABLE`, `E_NO_POSTAGE`, `E_BAD_POSTAGE`, `E_THREAD_GAP`.
+- §11 IANA: OC Chat claims Nostr kinds **30110–30112** (`oc-lock-chat-*` d-tags); DMs transport over NIP-59 gift-wrap.
+
 ## [Unreleased] — 2026-04
 
 ### Added

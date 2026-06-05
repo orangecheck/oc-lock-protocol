@@ -211,6 +211,29 @@ The relay holds the content key wrapped for its own device key. A recipient unse
 
 The relay is a trust anchor. Clients MUST display the relay URL and identity prominently before accepting payment-mode vaults. Anyone may run a relay; the reference implementation is permissionless and stateless between a funded release request and its response.
 
+### 4.5 Chat and re-wrap mode (OC Chat)
+
+[OC Chat](https://github.com/orangecheck/oc-chat-protocol) is a **mode of OC Lock** that operates the envelope continuously over a thread. It adds two `kind` values — `"chat"` and `"chat-seal"` — and one normative change to id/AAD computation for those kinds.
+
+**Recipient-exclusion rule (NORMATIVE).** For `kind ∈ {"chat", "chat-seal"}`, the `recipients[]` array is delivery routing, not content, and is excluded from both the AEAD AAD and the signed envelope id:
+
+- `envelope_id_draft` (the AAD, §4.2 step 3) is computed with `ciphertext=""`, `sig={}`, **and `recipients=[]`** (the entire array emptied, not merely each `wrapped_key`).
+- the envelope `id` (§4.1) is computed with `sig.value=""` **and `recipients=[]`**.
+
+This makes a chat envelope **re-keyable**: a holder — a payment relay (§4.4) or an OC Chat seal beacon (§4.6) — MAY replace `recipients[]` after sealing (a **re-wrap**), and the `id`, the sender `sig`, and the ciphertext GCM tag all remain valid. The re-wrap output is a detached `recipients[]` entry merged locally **without** recomputing the signed id. For `kind ∈ {"identity","payment"}` the base rules of §4.2 are unchanged. A `"chat"` envelope MAY carry an optional `postage` object (Lightning anti-spam); thread state (`conversation_id`, `seq`, `parent_id`) lives inside the encrypted payload. See `oc-chat-protocol` SPEC §3, §5, §6.
+
+### 4.6 Seal mode (OC Chat block-height timelock)
+
+A `"chat-seal"` envelope carries a `seal` object parallel to `payment`:
+
+```json
+"seal": { "unlock_block": <int>, "anchor": "beacon" | "cltv",
+          "beacon_id": "...", "beacon_url": "...", "redundant_beacon": null | { },
+          "confirmations": <int>, "cltv_outpoint": "<optional>" }
+```
+
+The sender wraps `content_key` to a **named beacon** device; the beacon releases it (re-wrap, §4.5) only after the Bitcoin chain reaches `unlock_block + confirmations`. For `anchor="beacon"` this is **beacon-enforced policy, not Bitcoin consensus** — a colluding beacon threshold can release early, and beacon disappearance permanently bricks the seal. Implementations MUST NOT describe a v0 beacon seal as "trustless". `anchor="cltv"` (reserved) is the consensus-enforced upgrade path — spending a `CHECKLOCKTIMEVERIFY`-encumbered output reveals the key in its witness — structurally pre-wired via `cltv_outpoint` and not shipped in v0. Full detail and the honest trust posture: `oc-chat-protocol` SPEC §7 + SECURITY.md.
+
 ## 5. Canonicalization
 
 The canonical byte representation of an envelope is required for computing `id` and for BIP-322 signing. Canonical form:
@@ -240,6 +263,11 @@ Client errors MUST use these codes. Users see short human-readable messages; log
 | `E_REVOKED` | Recipient device record is revoked on Nostr. |
 | `E_PAYMENT_UNMET` | Relay could not verify required payment. |
 | `E_RELAY_UNREACHABLE` | Relay did not respond. |
+| `E_BLOCK_UNMET` | (OC Chat) Seal release requested before `unlock_block + confirmations`. |
+| `E_BEACON_UNAVAILABLE` | (OC Chat) Seal beacon did not respond. |
+| `E_NO_POSTAGE` | (OC Chat) `pay-to-reach` message from a non-contact lacked valid postage. |
+| `E_BAD_POSTAGE` | (OC Chat) `SHA-256(preimage) != payment_hash`, or the recipient/amount/nonce binding failed. |
+| `E_THREAD_GAP` | (OC Chat) `parent_id` does not resolve to a held parent envelope id. |
 
 ## 7. Security model
 
@@ -307,6 +335,7 @@ A client is OC Lock v2 compliant if and only if:
 ## 11. IANA / external identifiers
 
 - Nostr event kind: **30078** (addressable, general replaceable range). The `d` tag namespace `oc-lock:device:*` is claimed by this spec.
+- Nostr event kinds **30110–30112** (OC Chat), d-tag namespace `oc-lock-chat-*`, are claimed by [`oc-chat-protocol`](https://github.com/orangecheck/oc-chat-protocol) as a mode of this verb. OC Chat DMs transport over NIP-59 gift-wrap (kind-1059). See the workspace `KINDS.md`.
 - File extension: `.lock`
 - MIME type: `application/vnd.oc-lock+json` (self-allocated; not IANA-registered as of this writing).
 
