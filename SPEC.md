@@ -80,7 +80,7 @@ event.pubkey  = ephemeral_nostr_pubkey   // see §3.4
 event.created_at = unix_seconds
 ```
 
-Clients SHOULD publish to at least three relays from a diverse set. The reference app uses `relay.damus.io`, `relay.nostr.band`, `nos.lol`, `relay.snort.social`.
+Clients SHOULD publish to at least three relays from a diverse set. The reference app uses `relay.ochk.io`, `nos.lol`, `relay.primal.net`, `offchain.pub`, `relay.damus.io`, `relay.snort.social`.
 
 ### 3.4 Nostr authorship
 
