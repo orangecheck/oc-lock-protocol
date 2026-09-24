@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased] — 2026-09
 
+### Clarified
+- **§4.3 step 2**: `sig.pubkey` MUST equal `from.address`. §7.1 states authenticity in terms of `from.address` while verification runs against `sig.pubkey`; the two are now required to be the same address. An envelope opened without sender verification (including any with an empty `sig.value`) MUST NOT present `from.address` as authenticated. Reference implementation: `@orangecheck/lock-core` 1.2.0 (`UnsealResult.authenticated`).
+- **§3.3**: a device record is used only for the address its binding statement signs, and only under that address's `d` tag (or the §3.6 per-device form). Reference implementation: `@orangecheck/lock-device` 0.2.2.
+
 ### Added
 - **§3.2 v3 bind statement** (`oc-lock:device-bind:v3`) adds a `nostr_pk:` line so a device record commits to the Nostr pubkey that publishes it. Verifiers reject a v3 record whose `event.pubkey` differs from the signed `nostr_pk`. Publishers MUST emit v3; v2 records remain valid for sealing.
 - **§3.4 Authorizing a Nostr pubkey** — the rule for deriving signing-key authorization from a device record: v3 authorizes its signed `nostr_pk`; a v2 record authorizes its `event.pubkey` only while it is the sole pubkey carrying that `(address, device_id)` and no v3 record exists for it. Reference implementation: `@orangecheck/lock-device` 0.3.0 `authorizedDevices`.

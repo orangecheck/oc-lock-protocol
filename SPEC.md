@@ -93,6 +93,8 @@ event.pubkey  = ephemeral_nostr_pubkey   // see §3.4
 event.created_at = unix_seconds
 ```
 
+A record is evidence only for the address in its signed `binding_statement`. A reader MUST reject a record whose `d` tag is neither `"oc-lock:device:" || address` nor the §3.6 per-device form for that signed address, and a reader resolving address `A` MUST discard every record whose signed address is not `A`. The `d` tag is writable by any publisher, so a record returned by a `#d` query for `A` may carry a valid binding for a different address.
+
 Clients SHOULD publish to at least three relays from a diverse set. The reference app uses `relay.ochk.io`, `nos.lol`, `relay.primal.net`, `offchain.pub`, `relay.damus.io`, `relay.snort.social`.
 
 ### 3.4 Nostr authorship
@@ -188,7 +190,7 @@ Given a `payload` (bytes) and one or more recipient device records:
 Given an envelope and a local `(device_id, device_sk)` pair:
 
 1. Recompute `id` from the envelope and compare to `envelope.id`. Reject on mismatch.
-2. Verify `sig.value` against `id` using BIP-322 and `sig.pubkey`. Reject on failure. (Clients MAY skip sender verification for sender == self.)
+2. Reject unless `sig.pubkey` equals `from.address`. Verify `sig.value` against `id` using BIP-322 and `sig.pubkey`. Reject on failure. (Clients MAY skip sender verification for sender == self.) A client that skips verification, or opens an envelope whose `sig.value` is empty, MUST NOT present `from.address` as the authenticated sender, and MUST NOT treat `from.address` equal to its own address as proof that it sent the envelope.
 3. Find a recipient entry matching your local `device_id`. If none, this vault is not for you — reject.
 4. `shared = X25519(device_sk, eph_pk)`.
 5. `kek = HKDF-SHA256(ikm=shared, salt=nonce_ct, info="oc-lock/v2/kek:" || device_id, L=32)`.
@@ -345,7 +347,8 @@ A client is OC Lock v2 compliant if and only if:
 - [ ] Publishes kind-30078 records per §3.3 with BIP-322 binding signature
 - [ ] Canonicalizes envelopes per §5 and produces identical `id` values across implementations
 - [ ] Accepts and produces all required envelope fields per §4.1
-- [ ] Verifies sender BIP-322 signatures before accepting envelope contents
+- [ ] Verifies sender BIP-322 signatures before accepting envelope contents, with `sig.pubkey` equal to `from.address` (§4.3)
+- [ ] Uses a device record only for the address its binding statement signs, under that address's `d` tag (§3.3)
 - [ ] Refuses encryption to revoked device records
 - [ ] Enforces `expires_at` when present
 - [ ] Emits error codes per §6
