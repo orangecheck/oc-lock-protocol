@@ -4,6 +4,12 @@ All notable changes to the OC Lock protocol and reference SDK.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased] — 2026-09
+
+### Added
+- **§3.2 v3 bind statement** (`oc-lock:device-bind:v3`) adds a `nostr_pk:` line so a device record commits to the Nostr pubkey that publishes it. Verifiers reject a v3 record whose `event.pubkey` differs from the signed `nostr_pk`. Publishers MUST emit v3; v2 records remain valid for sealing.
+- **§3.4 Authorizing a Nostr pubkey** — the rule for deriving signing-key authorization from a device record: v3 authorizes its signed `nostr_pk`; a v2 record authorizes its `event.pubkey` only while it is the sole pubkey carrying that `(address, device_id)` and no v3 record exists for it. Reference implementation: `@orangecheck/lock-device` 0.3.0 `authorizedDevices`.
+
 ## [Unreleased] — 2026-06
 
 ### Added

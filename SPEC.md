@@ -61,6 +61,19 @@ binding_statement := "oc-lock:device-bind:v2\n"
 
 `binding_sig := BIP322(btc_address, binding_statement)`.
 
+**v3 statement (publishers MUST emit).** A v3 statement additionally commits to the device's Nostr pubkey (§3.4), so the record authorizes exactly one Nostr key:
+
+```
+binding_statement := "oc-lock:device-bind:v3\n"
+                  || "address: "        || btc_address    || "\n"
+                  || "device_pk: "      || hex(device_pk) || "\n"
+                  || "nostr_pk: "       || hex(nostr_pk)  || "\n"    // x-only, lowercase
+                  || "device_id: "      || device_id      || "\n"
+                  || "created_at: "     || iso8601_utc    || "\n"
+```
+
+A verifier MUST reject a v3 record whose `event.pubkey` differs from the signed `nostr_pk`. Readers MUST continue to accept v2 records for sealing to `device_pk` (§4.2).
+
 ### 3.3 Publication
 
 The **device record** is published to Nostr as an addressable event of kind `30078`:
@@ -91,6 +104,11 @@ nostr_sk := hkdf(ikm=device_sk, salt="oc-lock/v2/nostr-key", info="nostr-sk", L=
 ```
 
 This avoids asking wallets to hold Nostr keys.
+
+**Authorizing a Nostr pubkey.** Protocols that treat a device record's `event.pubkey` as an identity-bound signing key (OC Chat inbox keys, device signatures) MUST derive that authorization from the signed statement, not from the event author:
+
+- A v3 record authorizes its signed `nostr_pk`.
+- A v2 statement does not name a Nostr key, so its `event.pubkey` is the event author's assertion. A v2 record authorizes its `event.pubkey` only while no v3 record exists for the same `(btc_address, device_id)` and that pair appears under exactly one `event.pubkey` in the records the verifier holds. When it appears under more than one, none of them is authorized. Clients SHOULD republish v2 devices as v3.
 
 ### 3.5 Rotation and revocation
 
