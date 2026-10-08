@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased] — 2026-09
 
+### Fixed — 2026-10-08
+
+- **Reference relay set** (§3.3): names the five relays the reference app actually uses. It listed `relay.damus.io`, which the shared default set has never included. Non-normative; nothing a client MUST do changes.
+
 ### Clarified
 - **§4.3 step 2**: `sig.pubkey` MUST equal `from.address`. §7.1 states authenticity in terms of `from.address` while verification runs against `sig.pubkey`; the two are now required to be the same address. An envelope opened without sender verification (including any with an empty `sig.value`) MUST NOT present `from.address` as authenticated. Reference implementation: `@orangecheck/lock-core` 1.2.0 (`UnsealResult.authenticated`).
 - **§3.3**: a device record is used only for the address its binding statement signs, and only under that address's `d` tag (or the §3.6 per-device form). Reference implementation: `@orangecheck/lock-device` 0.2.2.

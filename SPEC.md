@@ -95,7 +95,7 @@ event.created_at = unix_seconds
 
 A record is evidence only for the address in its signed `binding_statement`. A reader MUST reject a record whose `d` tag is neither `"oc-lock:device:" || address` nor the §3.6 per-device form for that signed address, and a reader resolving address `A` MUST discard every record whose signed address is not `A`. The `d` tag is writable by any publisher, so a record returned by a `#d` query for `A` may carry a valid binding for a different address.
 
-Clients SHOULD publish to at least three relays from a diverse set. The reference app uses `relay.ochk.io`, `nos.lol`, `relay.primal.net`, `offchain.pub`, `relay.damus.io`, `relay.snort.social`.
+Clients SHOULD publish to at least three relays from a diverse set. The reference app uses `relay.ochk.io`, `nos.lol`, `relay.primal.net`, `offchain.pub` and `relay.snort.social`, the default set in `@orangecheck/nostr-core`.
 
 ### 3.4 Nostr authorship
 
