@@ -61,3 +61,13 @@ The `@orangecheck/lock-core` suite in `oc-packages/lock-core/` loads this direct
 | `v03-with-expiry.json` | `expires_at` present |
 | `v04-with-hint.json` | `hint` field |
 | `v05-payment.json` | Payment-mode envelope, single relay recipient |
+
+## Device-binding vectors
+
+`device-binding/` holds the device record (§3), not an envelope, so the envelope harness above does not read it.
+
+| File | Exercises |
+|---|---|
+| `device-binding/b01-bind-v3.json` | A v3 bind statement (§3.2), the Nostr key derived from the device secret (§3.4), the BIP-322 `binding_sig`, and the kind-30078 event id (§3.3) |
+
+Given `inputs`, a compliant implementation MUST derive `device_pk` and `nostr_pk`, build `statement` byte for byte (every line LF-terminated, the last one too), compute `event_id`, and verify `binding_sig` over `statement` for `address`. It MUST reject the same `content`, tags and `binding_sig` under `reject.other_pubkey`. The Bitcoin key is BIP-322's own published test vector key: public, and never for real use. An event signature is not given, because BIP-340 signing takes fresh randomness; check the id and verify any signature you make.

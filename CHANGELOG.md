@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased] — 2026-09
 
+### Added — 2026-10-20
+
+- **Test vector `device-binding/b01-bind-v3.json`**: a v3 bind statement, its derived Nostr key, its BIP-322 signature and its kind-30078 event id, with the rule that the same record under another `event.pubkey` is rejected. Implementations had no fixed bytes to check a binding against.
+
 ### Fixed — 2026-10-08
 
 - **Reference relay set** (§3.3): names the five relays the reference app actually uses. It listed `relay.damus.io`, which the shared default set has never included. Non-normative; nothing a client MUST do changes.

@@ -1,0 +1,55 @@
+{
+  "description": "A v3 device binding (SPEC §3.2, §3.3, §3.4): the statement bytes, the Nostr key derived from the device secret, the BIP-322 binding signature, and the kind-30078 event id. The address and key are BIP-322’s own published test vector key (P2WPKH, mainnet); never use them for anything real.",
+  "inputs": {
+    "address": "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l",
+    "bitcoin_wif": "L3VFeEujGtevx9w18HD1fhRbCH67Az2dpCymeRE1SoPK6XQtaN2k",
+    "device_sk": "c75cbcf44ba8e689cb317b6d7ec4b4c87d6783ab8af15e3b2aef44d04e612216",
+    "device_id": "0b1d5ec7a0f3c2e4b6d8091a2c3e4f50",
+    "created_at": "2026-10-20T00:00:00.000Z",
+    "event_created_at": 1792454400
+  },
+  "expected": {
+    "device_pk": "3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503",
+    "nostr_sk": "33c9b0a39e77f3da6920a6a92668a278e88743dfde09aa9fc68d7969ac52bac3",
+    "nostr_pk": "02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500",
+    "statement": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: 3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503\nnostr_pk: 02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\ncreated_at: 2026-10-20T00:00:00.000Z\n",
+    "binding_sig": "AkgwRQIhAN6FlMtt7waWnDeH/o5puuDixUl34zlGyqc41yaHp31GAiAZ8DMVytzOp666itwCf8rpsUNLCIU2pLwiQSPQdat+cwEhAsfxIAMZZEKUPYWI4BruhAQjzFT8FSFSajuFwrDL1Yhy",
+    "event": {
+      "pubkey": "02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500",
+      "created_at": 1792454400,
+      "kind": 30078,
+      "tags": [
+        [
+          "d",
+          "oc-lock:device:bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+        ],
+        [
+          "addr",
+          "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+        ],
+        [
+          "device_id",
+          "0b1d5ec7a0f3c2e4b6d8091a2c3e4f50"
+        ],
+        [
+          "device_pk",
+          "3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503"
+        ],
+        [
+          "alg",
+          "x25519"
+        ],
+        [
+          "binding_sig",
+          "AkgwRQIhAN6FlMtt7waWnDeH/o5puuDixUl34zlGyqc41yaHp31GAiAZ8DMVytzOp666itwCf8rpsUNLCIU2pLwiQSPQdat+cwEhAsfxIAMZZEKUPYWI4BruhAQjzFT8FSFSajuFwrDL1Yhy"
+        ]
+      ],
+      "content": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: 3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503\nnostr_pk: 02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\ncreated_at: 2026-10-20T00:00:00.000Z\n"
+    },
+    "event_id": "5397d5b6df75abda35c2b198d0828a7b54412dcff0530c7f2e9045add36433a9"
+  },
+  "reject": {
+    "description": "The same content, tags and binding_sig carried by any other event.pubkey MUST be rejected (§3.2): the statement names the one Nostr key allowed to publish it.",
+    "other_pubkey": "6ced5bf01bc068925f0ae452899904bc4dc6e343467828fa20c0bc0d085ee1ab"
+  }
+}
