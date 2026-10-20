@@ -60,7 +60,6 @@ The `@orangecheck/lock-core` suite in `oc-packages/lock-core/` loads this direct
 | `v02-multi-recipient.json` | Three recipients, tests `device_id` ordering |
 | `v03-with-expiry.json` | `expires_at` present |
 | `v04-with-hint.json` | `hint` field |
-| `v05-payment.json` | Payment-mode envelope, single relay recipient |
 
 ## Device-binding vectors
 
