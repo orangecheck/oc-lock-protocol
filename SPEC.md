@@ -1,7 +1,7 @@
-# OC Lock Protocol v2.0 — Specification
+# OC Lock Protocol v2.1 — Specification
 
 **Status:** Stable
-**Date:** 2026-04
+**Version:** 2.1.0 (2026-10-21). 2.0.0 was published 2026-04.
 **Supersedes:** LOCK Protocol v1.0 (adaptor signature) and v1.1 (Proof-of-Access)
 
 ---
@@ -114,13 +114,32 @@ This avoids asking wallets to hold Nostr keys.
 
 ### 3.5 Rotation and revocation
 
-To rotate, a recipient generates a new `(device_sk, device_pk)` with a new `device_id`, re-signs the binding statement, and publishes a new kind-30078 event. Because kind 30078 is **addressable**, the new event with the same `d` tag replaces the previous record at conforming relays.
+A device stops receiving new envelopes only through a **revocation**: a kind-30078 event whose `content` is the revocation statement, signed by the address.
 
-To revoke without replacement, the recipient publishes an event with `device_pk` set to `"revoked"` and a fresh `binding_sig` over a revocation statement. Conforming senders MUST refuse to encrypt to a revoked device record.
+```
+revocation_statement := "oc-lock:device-revoke:v2\n"
+                     || "address: "        || btc_address    || "\n"
+                     || "device_id: "      || device_id      || "\n"
+                     || "revoked_at: "     || iso8601_utc    || "\n"
+```
+
+`binding_sig := BIP322(btc_address, revocation_statement)`. The event carries the §3.3 tags with `["device_pk", "revoked"]`, under the §3.3 or §3.6 `d` tag for that address. Any Nostr key MAY publish it: the device's own, another device's, or a fresh key. The authority is the address's signature, so a lost device can be revoked with the wallet alone. A revocation statement names no Nostr key, and a reader MUST NOT reject one for its `event.pubkey`.
+
+**Which binds are live.** A reader resolving address `A` collects the device records it received for `A` from every relay it queried, and discards each one whose `binding_sig` does not verify (§3.3). Then, for each `device_id` `D`:
+
+1. Let `R` be the latest signed `revoked_at` among the remaining revocations of `(A, D)`.
+2. A bind of `(A, D)` is **live** if there is no such revocation, or if its signed `created_at` is later than `R`. A bind whose `created_at` equals `R` is retired.
+3. This holds whichever Nostr key carried each record, whichever `d` form (§3.3, §3.6) filed it, and whichever relay served it. A revocation that one relay holds retires the bind that another relay still serves.
+
+The times are the signed `created_at` and `revoked_at`, compared as instants. `event.created_at` is set by whoever publishes the event and orders nothing here. A revocation whose `binding_sig` is empty or does not verify for `A` retires nothing. Published under the device's own Nostr key, it still replaces that key's earlier record at the relays that take it (NIP-33). That is relay behavior: every other relay keeps serving the bind.
+
+Conforming senders MUST seal only to live binds. When no bind for `A` is live, the sender MUST NOT seal, and reports `E_REVOKED`.
+
+To **rotate**, a recipient binds a new device (§3.1–§3.3, with a new `device_id`) and revokes the old `device_id`. Publishing the new record does not retire the old one. Each device publishes under its own Nostr key (§3.4), so the two records sit at different NIP-33 coordinates and no relay replaces one with the other.
 
 ### 3.6 Multi-device
 
-A recipient with multiple devices MAY publish one record per device by using distinct `d` tags: `oc-lock:device:<addr>:<device_id>`. Senders fetching multi-device records MUST encrypt once per active device (§4.2, `recipients[]`).
+A recipient with multiple devices MAY publish one record per device by using distinct `d` tags: `oc-lock:device:<addr>:<device_id>`. Senders fetching multi-device records MUST encrypt once per live device (§3.5, §4.2, `recipients[]`).
 
 ## 4. Envelope format
 
@@ -280,7 +299,7 @@ Client errors MUST use these codes. Users see short human-readable messages; log
 | `E_BAD_SIG` | Sender BIP-322 signature did not verify. |
 | `E_BAD_TAG` | AEAD authentication failed (tampered envelope or wrong key). |
 | `E_EXPIRED` | `expires_at` is in the past. |
-| `E_REVOKED` | Recipient device record is revoked on Nostr. |
+| `E_REVOKED` | No device record for the recipient's address is live: a verified revocation retired each one (§3.5). |
 | `E_PAYMENT_UNMET` | Relay could not verify required payment. |
 | `E_RELAY_UNREACHABLE` | Relay did not respond. |
 | `E_BLOCK_UNMET` | (OC Chat) Seal release requested before `unlock_block + confirmations`. |
@@ -349,7 +368,7 @@ A client is OC Lock v2 compliant if and only if:
 - [ ] Accepts and produces all required envelope fields per §4.1
 - [ ] Verifies sender BIP-322 signatures before accepting envelope contents, with `sig.pubkey` equal to `from.address` (§4.3)
 - [ ] Uses a device record only for the address its binding statement signs, under that address's `d` tag (§3.3)
-- [ ] Refuses encryption to revoked device records
+- [ ] Seals only to live binds: applies every revocation whose BIP-322 signature verifies, from any relay and any Nostr key, by signed timestamps (§3.5)
 - [ ] Enforces `expires_at` when present
 - [ ] Emits error codes per §6
 

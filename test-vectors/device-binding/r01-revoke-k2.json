@@ -1,0 +1,169 @@
+{
+  "description": "A revocation of the b01-bind-v3 device (SPEC §3.5, LIFECYCLE §1.1), signed by its address and carried by a Nostr key that is not the device’s. It retires the b01 bind although it cannot replace it at any relay. A bind of the same device_id signed after it is live. The same revocation with a binding_sig over other bytes retires nothing. The address and key are BIP-322’s own published test vector key (P2WPKH, mainnet); never use them for anything real.",
+  "inputs": {
+    "address": "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l",
+    "bitcoin_wif": "L3VFeEujGtevx9w18HD1fhRbCH67Az2dpCymeRE1SoPK6XQtaN2k",
+    "device_id": "0b1d5ec7a0f3c2e4b6d8091a2c3e4f50",
+    "revoked_at": "2026-10-21T00:00:00.000Z",
+    "carrier_nostr_sk": "4c4207038dd178d4e1016d7e17d23340da6e9aad3bc3956612e863a143bd3e05",
+    "revocation_event_created_at": 1792540800,
+    "rebind_device_sk": "f1548469b6dd4535e3acf51698998f0d1bf27efe60a4332184a728b27e89f8d7",
+    "rebind_created_at": "2026-10-22T00:00:00.000Z",
+    "rebind_event_created_at": 1792627200
+  },
+  "expected": {
+    "revocation": {
+      "carrier_pubkey": "fe236e21bc16fba8c073ada21cee4be0db3a3667914aed0c26750c2ae313dd32",
+      "statement": "oc-lock:device-revoke:v2\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\nrevoked_at: 2026-10-21T00:00:00.000Z\n",
+      "binding_sig": "AkcwRAIgR76Ur6YbqibPE60Wrv/ccLJ+a8n+43c9ja6H5lq9rmMCIEm/3J6eR8Tfd0sejhWWXRLzUeOq7+bVF1oA+VJzB0zRASECx/EgAxlkQpQ9hYjgGu6EBCPMVPwVIVJqO4XCsMvViHI=",
+      "event": {
+        "pubkey": "fe236e21bc16fba8c073ada21cee4be0db3a3667914aed0c26750c2ae313dd32",
+        "created_at": 1792540800,
+        "kind": 30078,
+        "tags": [
+          [
+            "d",
+            "oc-lock:device:bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "addr",
+            "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "device_id",
+            "0b1d5ec7a0f3c2e4b6d8091a2c3e4f50"
+          ],
+          [
+            "device_pk",
+            "revoked"
+          ],
+          [
+            "alg",
+            "x25519"
+          ],
+          [
+            "binding_sig",
+            "AkcwRAIgR76Ur6YbqibPE60Wrv/ccLJ+a8n+43c9ja6H5lq9rmMCIEm/3J6eR8Tfd0sejhWWXRLzUeOq7+bVF1oA+VJzB0zRASECx/EgAxlkQpQ9hYjgGu6EBCPMVPwVIVJqO4XCsMvViHI="
+          ]
+        ],
+        "content": "oc-lock:device-revoke:v2\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\nrevoked_at: 2026-10-21T00:00:00.000Z\n"
+      },
+      "event_id": "f9e44b9ab7a58180ee0fb6c7ce0fa423fba88a05281bc3190be797590d000726"
+    },
+    "rebind": {
+      "device_pk": "ef3d379aa9388489546d44eae67309fc82230b56e77001077ae3977905ad4d69",
+      "nostr_pk": "880cd7e3ce2ac120f0a8abd0e4f23b5902ccb40f2d07afb7a337ecf5aeb2e72f",
+      "statement": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: ef3d379aa9388489546d44eae67309fc82230b56e77001077ae3977905ad4d69\nnostr_pk: 880cd7e3ce2ac120f0a8abd0e4f23b5902ccb40f2d07afb7a337ecf5aeb2e72f\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\ncreated_at: 2026-10-22T00:00:00.000Z\n",
+      "binding_sig": "AkcwRAIgBBsIP5wkDZ9kOjFWxWI1TLW12zOJveO+WHyFO1IyaXYCICIbQdFxxvsfNzYZkmEVb7tagK1DuTZlwrI4L+i49Im/ASECx/EgAxlkQpQ9hYjgGu6EBCPMVPwVIVJqO4XCsMvViHI=",
+      "event": {
+        "pubkey": "880cd7e3ce2ac120f0a8abd0e4f23b5902ccb40f2d07afb7a337ecf5aeb2e72f",
+        "created_at": 1792627200,
+        "kind": 30078,
+        "tags": [
+          [
+            "d",
+            "oc-lock:device:bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "addr",
+            "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "device_id",
+            "0b1d5ec7a0f3c2e4b6d8091a2c3e4f50"
+          ],
+          [
+            "device_pk",
+            "ef3d379aa9388489546d44eae67309fc82230b56e77001077ae3977905ad4d69"
+          ],
+          [
+            "alg",
+            "x25519"
+          ],
+          [
+            "binding_sig",
+            "AkcwRAIgBBsIP5wkDZ9kOjFWxWI1TLW12zOJveO+WHyFO1IyaXYCICIbQdFxxvsfNzYZkmEVb7tagK1DuTZlwrI4L+i49Im/ASECx/EgAxlkQpQ9hYjgGu6EBCPMVPwVIVJqO4XCsMvViHI="
+          ]
+        ],
+        "content": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: ef3d379aa9388489546d44eae67309fc82230b56e77001077ae3977905ad4d69\nnostr_pk: 880cd7e3ce2ac120f0a8abd0e4f23b5902ccb40f2d07afb7a337ecf5aeb2e72f\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\ncreated_at: 2026-10-22T00:00:00.000Z\n"
+      },
+      "event_id": "f0caebc5775ce17a4820487619496013cecef20182b0fc389ce0d9f545aca03b"
+    },
+    "live": {
+      "description": "Each case is the union of the records a reader received for the address from every relay it queried. live lists the binds a sender may seal to.",
+      "cases": [
+        {
+          "records": [
+            "b01",
+            "revocation"
+          ],
+          "live": []
+        },
+        {
+          "records": [
+            "b01",
+            "revocation",
+            "rebind"
+          ],
+          "live": [
+            "rebind"
+          ]
+        },
+        {
+          "records": [
+            "b01",
+            "revocation_bad_sig"
+          ],
+          "live": [
+            "b01"
+          ]
+        }
+      ],
+      "names": {
+        "b01": "b01-bind-v3.json expected.event, id 5397d5b6df75abda35c2b198d0828a7b54412dcff0530c7f2e9045add36433a9",
+        "revocation": "expected.revocation.event, id f9e44b9ab7a58180ee0fb6c7ce0fa423fba88a05281bc3190be797590d000726",
+        "rebind": "expected.rebind.event, id f0caebc5775ce17a4820487619496013cecef20182b0fc389ce0d9f545aca03b",
+        "revocation_bad_sig": "reject.revocation_bad_sig.event, id 24fc184a6ced3157de18be3eb88db22df405527201e442ba9eae46e4b73c2525"
+      }
+    }
+  },
+  "reject": {
+    "revocation_bad_sig": {
+      "description": "The revocation statement with a binding_sig over the bytes \"not the revocation statement\\n\". It does not verify for the address, so it retires nothing (§3.5).",
+      "binding_sig": "AkcwRAIgQqq+CvB04dFZvG3Q7E9BxZ+G7iz/1bO2bauyDJuG1ugCIHm+9BCmn4qobqeoF5T+808f/fCN2W8IiHhhCcPHRlJUASECx/EgAxlkQpQ9hYjgGu6EBCPMVPwVIVJqO4XCsMvViHI=",
+      "event": {
+        "pubkey": "aa37ae102dc247d1b233e84a2dbcd3132b457b91a4ec8d671ef083f6a891767e",
+        "created_at": 1792540800,
+        "kind": 30078,
+        "tags": [
+          [
+            "d",
+            "oc-lock:device:bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "addr",
+            "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "device_id",
+            "0b1d5ec7a0f3c2e4b6d8091a2c3e4f50"
+          ],
+          [
+            "device_pk",
+            "revoked"
+          ],
+          [
+            "alg",
+            "x25519"
+          ],
+          [
+            "binding_sig",
+            "AkcwRAIgQqq+CvB04dFZvG3Q7E9BxZ+G7iz/1bO2bauyDJuG1ugCIHm+9BCmn4qobqeoF5T+808f/fCN2W8IiHhhCcPHRlJUASECx/EgAxlkQpQ9hYjgGu6EBCPMVPwVIVJqO4XCsMvViHI="
+          ]
+        ],
+        "content": "oc-lock:device-revoke:v2\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\nrevoked_at: 2026-10-21T00:00:00.000Z\n"
+      },
+      "event_id": "24fc184a6ced3157de18be3eb88db22df405527201e442ba9eae46e4b73c2525"
+    }
+  }
+}

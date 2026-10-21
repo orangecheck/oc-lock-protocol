@@ -48,7 +48,7 @@ These are cryptographic correctness conditions that conforming implementations M
 2. **Verify `sig.value` before trusting envelope contents** (unless the caller explicitly skips — e.g., self-seals).
 3. **Never reuse AEAD nonces with the same key.** `content_key` is fresh per envelope and `nonce_ct` is fresh random 12 bytes. Per-recipient `nonce_kek` is also fresh random.
 4. **Zeroize intermediate key material.** `content_key`, `shared`, and `kek` MUST be wiped after use. (JS implementations are best-effort; V8 may retain copies.)
-5. **Refuse revoked records.** Device records with `device_pk === "revoked"` MUST NOT be used for encryption.
+5. **Seal only to live binds.** Apply every revocation whose `binding_sig` verifies for its address, from any relay and carried by any Nostr key, by signed timestamps ([SPEC §3.5](./SPEC.md#35-rotation-and-revocation)). A revocation that does not verify retires nothing.
 6. **Enforce `expires_at`** on the receiving side.
 7. **Use the canonical form** per [SPEC §5](./SPEC.md#5-canonicalization) for id computation and signature domains. Recipients MUST be sorted by `device_id` ascending.
 

@@ -21,22 +21,24 @@ OC Lock has two distinct artifact types with different lifecycles: the **device 
 
 ### 1.1 Device record (kind 30078, `d = oc-lock:device:<addr>[:<device_id>]`)
 
-#### Rotation (replacement)
+#### Rotation
 
-`SPEC.md` §3.5 already specifies rotation: generate a new `(device_sk, device_pk)`, re-sign the binding statement, re-publish under the same `d` tag. NIP-33 replacement at conforming relays makes the new record canonical for that coordinate. The old record's bytes remain wherever they were already copied; senders consulting current relay state will encrypt to the new record. This LIFECYCLE document adds nothing to §3.5 beyond restating that rotation is a *replacement*, not a *deletion*.
+`SPEC.md` §3.5 specifies rotation: bind a new device under a new `device_id`, then revoke the old `device_id`. Rotation is not a replacement. Each device publishes under the Nostr key derived from its own secret (`SPEC.md` §3.4), so the new record sits at a different NIP-33 coordinate from the old one, and no relay replaces either. Until the old `device_id` is revoked, senders seal to both.
 
 #### Revocation (explicit, in-spec)
 
-`SPEC.md` §3.5 already specifies revocation: re-publish the device record with `device_pk` set to the literal string `"revoked"` and a fresh `binding_sig` over a revocation statement. **Conforming senders MUST refuse to encrypt to a revoked device record.** This LIFECYCLE document restates that requirement and clarifies four edge cases:
+`SPEC.md` §3.5 specifies revocation: a kind-30078 event with `device_pk` set to the literal string `"revoked"`, whose `content` is the revocation statement and whose `binding_sig` is the address's BIP-322 signature over it. Any Nostr key may carry it. **A revocation whose signature verifies, seen on any relay, retires every bind of its `(address, device_id)` whose signed `created_at` is not later than its signed `revoked_at`, whichever Nostr key carried either record. Conforming senders MUST seal only to binds that no such revocation retires.**
 
-1. **Race with rotation.** If a recipient observes both a rotation event and a revocation event for the same `d`, the recipient SHOULD treat the higher-`created_at` event as canonical. This is the same ordering NIP-33 already imposes and requires no additional logic.
-2. **Recovery after revocation.** Revoking a device is one-way for that `d`. To recover, the recipient SHOULD publish a new device record under a *different* `device_id` (per §3.6 multi-device pattern). Re-using the revoked `d` with a non-`"revoked"` `device_pk` is permitted by NIP-33 but is a footgun — senders that cached the revocation MAY keep refusing to encrypt for some time.
+NIP-33 replacement cannot do this job. It replaces a record only at the same `(pubkey, kind, d)`. A revocation from another device, or from the wallet under a fresh key, has a different `pubkey` from the lost device's record, so it replaces nothing. A relay that never received the revocation keeps serving the bind whichever key carried it. The rule above depends on neither. Four edge cases:
+
+1. **Order.** Revocations and binds are ordered by their signed timestamps, never by `event.created_at` and never by which record a relay kept. A bind signed after the latest revocation of its device is live. A bind signed at the same instant is retired.
+2. **Recovery after revocation.** To recover, the recipient SHOULD bind a new `device_id` (per §3.6 multi-device pattern). A bind of the revoked `device_id` signed after the revocation is live again under case 1. A new `device_id` keeps the two keys apart in every reader's history.
 3. **Already-sealed envelopes.** Revocation does not unseal envelopes that were *already addressed to the device record*. Those envelopes were encrypted with a content-key wrapped to the (now-revoked) `device_pk`; the holder of the matching `device_sk` can still decrypt them. This is unavoidable and not a spec defect — sealed bytes sent in the past cannot be cryptographically retracted. To prevent decryption, the recipient must destroy the `device_sk`, not revoke its public counterpart.
-4. **Multi-device recipients.** A revocation under `d = oc-lock:device:<addr>:<device_id>` applies only to that specific device. Other devices for the same `<addr>` remain valid. Senders implementing multi-device per §3.6 MUST honor per-device revocation rather than per-address.
+4. **Per device.** A revocation names one `device_id`, and it retires binds of that `device_id` for its own address only. Other devices of the same address stay live. The `d` form (`SPEC.md` §3.3 or §3.6) that files either record makes no difference.
 
 #### Out-of-protocol controls
 
-A recipient MAY hide a device record from a reference dashboard or publish a NIP-09 deletion request. Neither affects sender behavior: senders MUST consult relay state for the canonical (`pubkey`, `kind`, `d`) record and MUST honor `device_pk == "revoked"` regardless of whether the recipient's dashboard shows the record.
+A recipient MAY hide a device record from a reference dashboard or publish a NIP-09 deletion request. Neither affects sender behavior: senders MUST apply every verified revocation they receive (`SPEC.md` §3.5), whether or not the recipient's dashboard shows the record.
 
 ### 1.2 Sealed envelope (`.lock`, `application/vnd.oc-lock+json`)
 
@@ -68,6 +70,7 @@ Hide and NIP-09 deletion-request are particularly meaningless for sealed envelop
 
 | Implementation MUST | Implementation MUST NOT |
 |---|---|
-| Refuse to encrypt to a device record whose canonical (highest-`created_at`) version has `device_pk == "revoked"` (`SPEC.md` §3.5). | Define or honor any envelope-revocation primitive beyond `device_pk == "revoked"` at the device-record layer. |
-| Honor per-device revocation: a revocation under `d = oc-lock:device:<addr>:<device_id>` is bounded to that device, not the address. | Treat dashboard-local hide flags or NIP-09 deletion-request events as a substitute for `device_pk == "revoked"`. |
+| Seal only to live binds: apply every revocation whose BIP-322 signature verifies for its address, from any relay and carried by any Nostr key, to the binds of its `device_id` signed no later than its `revoked_at` (`SPEC.md` §3.5). | Define or honor any envelope-revocation primitive beyond `device_pk == "revoked"` at the device-record layer. |
+| Honor per-device revocation: a revocation retires binds of its own `(address, device_id)` only, not the address's other devices. | Treat dashboard-local hide flags or NIP-09 deletion-request events as a substitute for `device_pk == "revoked"`. |
 | Refuse to act on a sealed envelope whose `expires_at` is past. | Pretend that revoking a device record retroactively unseals envelopes already addressed to it — those envelopes are still decipherable by anyone holding the matching `device_sk`. |
+| Order device records by their signed `created_at` and `revoked_at`. | Let a revocation without a valid BIP-322 signature retire a bind, or let `event.created_at` or relay replacement decide which bind is live. |

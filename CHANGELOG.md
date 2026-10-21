@@ -4,7 +4,24 @@ All notable changes to the OC Lock protocol and reference SDK.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased] — 2026-09
+## [2.1.0] — 2026-10-21 — a revocation signed by the address
+
+**Minor release. No envelope, binding-statement or canonicalization change.** It also releases the changes listed below it, made between 2.0.0 and this date.
+
+**The 2.0 text could not deliver what Flow 3 promised.** Flow 3 says that when Bob's laptop is stolen, he revokes it from another device and senders stop sealing to it. §3.5 and LIFECYCLE §1.1 made a revocation work by NIP-33 replacement: the newest record at the same coordinate wins. NIP-33 keys that coordinate by `(pubkey, kind, d)`, and each device publishes under its own Nostr key (§3.4). So a revocation from Bob's phone sat beside the laptop's record and replaced nothing. Only the laptop's own key could have replaced it, and Bob no longer had the laptop. A relay that never received a revocation also kept serving the bind. Rotation had the same gap: the new record did not replace the old one. And §3.5 never gave the revocation statement's bytes.
+
+### Changed
+- **`SPEC.md` §3.5** gives the revocation statement byte for byte (`oc-lock:device-revoke:v2` with `address`, `device_id` and `revoked_at`) and the rule for which binds are live. A revocation whose `binding_sig` verifies for its address retires every bind of its `(address, device_id)` whose signed `created_at` is not later than its signed `revoked_at`. That holds whichever Nostr key carried either record and whichever relay served it. A bind signed later stays live; a bind signed at the same instant is retired. A revocation without a valid signature retires nothing. Rotation is a new device plus a revocation of the old one.
+- **`LIFECYCLE.md` §1.1** states the same rule. Edge cases 1, 2 and 4 order records by signed time instead of NIP-33 replacement, and the §2 MUST rows say so.
+- **`PROTOCOL.md` Flow 3**: Bob revokes the stolen laptop with his wallet, from any client, without the laptop's key. Rotation revokes the old device.
+- **`SPEC.md` §3.6, §6 `E_REVOKED`, §10** and **`SECURITY.md`** item 5 refer to live binds.
+
+### Added
+- **Test vector `device-binding/r01-revoke-k2.json`**: the `b01` device revoked by its address under another Nostr key. The revocation retires the `b01` bind, which it cannot replace at any relay. A bind of the same `device_id` signed after it is live, and the same revocation with a signature over other bytes retires nothing. Under the 2.0 rule, the first case left `b01` live.
+
+Reference implementation: `@orangecheck/lock-device` 0.4.0 `liveDevices`, which lock.ochk.io and chat.ochk.io use.
+
+## Between 2.0.0 and 2.1.0 — 2026-09
 
 ### Added — 2026-10-20
 
@@ -22,14 +39,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **§3.2 v3 bind statement** (`oc-lock:device-bind:v3`) adds a `nostr_pk:` line so a device record commits to the Nostr pubkey that publishes it. Verifiers reject a v3 record whose `event.pubkey` differs from the signed `nostr_pk`. Publishers MUST emit v3; v2 records remain valid for sealing.
 - **§3.4 Authorizing a Nostr pubkey** — the rule for deriving signing-key authorization from a device record: v3 authorizes its signed `nostr_pk`; a v2 record authorizes its `event.pubkey` only while it is the sole pubkey carrying that `(address, device_id)` and no v3 record exists for it. Reference implementation: `@orangecheck/lock-device` 0.3.0 `authorizedDevices`.
 
-## [Unreleased] — 2026-06
+## Between 2.0.0 and 2.1.0 — 2026-06
 
 ### Added
 - **§4.5 Chat and re-wrap mode** and **§4.6 Seal mode** — OC Chat is a mode of OC Lock. Two new envelope `kind` values (`"chat"`, `"chat-seal"`) and the normative **recipient-exclusion rule**: for chat kinds, `recipients[]` is excluded from both the AEAD AAD and the signed `id`, making an envelope re-keyable (a payment relay or seal beacon can re-wrap for a new recipient without breaking the `id`, the BIP-322 signature, or the ciphertext tag). The `"chat-seal"` `seal` object carries a block-height timelock released by a **named** beacon — beacon-enforced policy, not consensus; the `cltv` anchor is the reserved consensus-enforced upgrade path. Full detail in [`oc-chat-protocol`](https://github.com/orangecheck/oc-chat-protocol).
 - §6 error codes `E_BLOCK_UNMET`, `E_BEACON_UNAVAILABLE`, `E_NO_POSTAGE`, `E_BAD_POSTAGE`, `E_THREAD_GAP`.
 - §11 IANA: OC Chat claims Nostr kinds **30110–30112** (`oc-lock-chat-*` d-tags); DMs transport over NIP-59 gift-wrap.
 
-## [Unreleased] — 2026-04
+## Between 2.0.0 and 2.1.0 — 2026-04
 
 ### Added
 - **`LIFECYCLE.md`** — normative companion document specifying device-record rotation and revocation (extending `SPEC.md` §3.5) and the non-revocability of sealed envelopes (bounded only by `expires_at`). Clarifies four edge cases for `device_pk == "revoked"`: rotation/revocation race ordering, recovery via fresh `device_id`, the impossibility of unsealing already-delivered envelopes by revoking their device record, and per-device scoping. Reaffirms that dashboard-local hide flags and NIP-09 deletion-request events have no protocol force. No protocol changes; clarification only.
