@@ -4,6 +4,20 @@ All notable changes to the OC Lock protocol and reference SDK.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.2.0] — 2026-10-22 — the reader's clock, and dating a revocation
+
+**Minor release. No envelope, binding-statement or canonicalization change.**
+
+### Changed
+- **`SPEC.md` §3.5 rule 4.** A bind whose signed `created_at` is later than the reader's clock plus a skew allowance (10 minutes RECOMMENDED) is not live yet. A reader SHOULD still list it, so that it can be revoked.
+- **`SPEC.md` §3.5, dating a revocation.** A revoker signs `revoked_at` no earlier than its own clock and no earlier than the latest signed `created_at` among the binds of that device it holds. A client SHOULD read the device's records again before it reports the device as revoked.
+- **`LIFECYCLE.md` §1.1** edge case 1 and the §2 MUST rows, and the **§10** checklist, follow.
+
+### Added
+- **Test vector `device-binding/r02-bind-ahead.json`**: a bind of the `b01` device dated 2099-01-01, and a revocation of it dated at that bind's own date, with the live and pending binds at four reader times.
+
+Reference implementation: `@orangecheck/lock-device` 0.5.0 (`liveDevices` with the reader's clock, `pendingDevices`, `revokedAtFor`).
+
 ## [2.1.0] — 2026-10-21 — a revocation signed by the address
 
 **Minor release. No envelope, binding-statement or canonicalization change.** It also releases the changes listed below it, made between 2.0.0 and this date.

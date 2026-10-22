@@ -1,0 +1,143 @@
+{
+  "description": "A bind of the b01 device dated 2099-01-01, later than any reader’s clock (SPEC §3.5 rule 4), and a revocation of it dated at the bind’s own signed created_at, as a revoker dates one (§3.5, dating a revocation). The address and key are BIP-322’s own published test vector key (P2WPKH, mainnet); never use them for anything real.",
+  "inputs": {
+    "address": "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l",
+    "bitcoin_wif": "L3VFeEujGtevx9w18HD1fhRbCH67Az2dpCymeRE1SoPK6XQtaN2k",
+    "device_id": "0b1d5ec7a0f3c2e4b6d8091a2c3e4f50",
+    "ahead_device_sk": "2ef8543c5eb2150462144bccb48cf7bda06dc328647ef7879708a72d9b12aa84",
+    "ahead_created_at": "2099-01-01T00:00:00.000Z",
+    "carrier_nostr_sk": "b87a7104380c36297da7529b1f6fb0aff9a93eec68c18681ffe361166b7c3d08",
+    "event_created_at": 1792540800,
+    "max_skew_seconds": 600
+  },
+  "expected": {
+    "ahead": {
+      "device_pk": "9a51679abf23bcd87f5df9833ad4547652a1da60f8a1e5a02c74d403427bfd75",
+      "nostr_pk": "b783bc79c161a7dc99689ecdfbeeef4aafb14ba477d0b7bca2b0f2b2aee4a570",
+      "statement": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: 9a51679abf23bcd87f5df9833ad4547652a1da60f8a1e5a02c74d403427bfd75\nnostr_pk: b783bc79c161a7dc99689ecdfbeeef4aafb14ba477d0b7bca2b0f2b2aee4a570\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\ncreated_at: 2099-01-01T00:00:00.000Z\n",
+      "binding_sig": "AkcwRAIgbEU0fHhivgVdgxrVJ4bPkc2JKCmp48n7VOIoh7qW544CICtouZfu0voJcKSbscinILewMr4uqYPLlFBVtZGdFwFsASECx/EgAxlkQpQ9hYjgGu6EBCPMVPwVIVJqO4XCsMvViHI=",
+      "event": {
+        "pubkey": "b783bc79c161a7dc99689ecdfbeeef4aafb14ba477d0b7bca2b0f2b2aee4a570",
+        "created_at": 1792540800,
+        "kind": 30078,
+        "tags": [
+          [
+            "d",
+            "oc-lock:device:bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "addr",
+            "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "device_id",
+            "0b1d5ec7a0f3c2e4b6d8091a2c3e4f50"
+          ],
+          [
+            "device_pk",
+            "9a51679abf23bcd87f5df9833ad4547652a1da60f8a1e5a02c74d403427bfd75"
+          ],
+          [
+            "alg",
+            "x25519"
+          ],
+          [
+            "binding_sig",
+            "AkcwRAIgbEU0fHhivgVdgxrVJ4bPkc2JKCmp48n7VOIoh7qW544CICtouZfu0voJcKSbscinILewMr4uqYPLlFBVtZGdFwFsASECx/EgAxlkQpQ9hYjgGu6EBCPMVPwVIVJqO4XCsMvViHI="
+          ]
+        ],
+        "content": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: 9a51679abf23bcd87f5df9833ad4547652a1da60f8a1e5a02c74d403427bfd75\nnostr_pk: b783bc79c161a7dc99689ecdfbeeef4aafb14ba477d0b7bca2b0f2b2aee4a570\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\ncreated_at: 2099-01-01T00:00:00.000Z\n"
+      },
+      "event_id": "a6384c0e2085c15db4f39fc21610f310567979227515579c02f4707c01fbd1dd"
+    },
+    "revocation": {
+      "carrier_pubkey": "0c56d771dd59209908959c897678ccae2e179f3a1c7a11680f341b02c9337a26",
+      "statement": "oc-lock:device-revoke:v2\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\nrevoked_at: 2099-01-01T00:00:00.000Z\n",
+      "binding_sig": "AkgwRQIhAK7AKZGpObFRIIpkUOwS1gWBpNFa9H10gwJ+hs9v5GF2AiA0ZovXudz5sl8Ju4pAqPLSXvQwvjAkDpkc8KZAP9/MFQEhAsfxIAMZZEKUPYWI4BruhAQjzFT8FSFSajuFwrDL1Yhy",
+      "event": {
+        "pubkey": "0c56d771dd59209908959c897678ccae2e179f3a1c7a11680f341b02c9337a26",
+        "created_at": 1792540800,
+        "kind": 30078,
+        "tags": [
+          [
+            "d",
+            "oc-lock:device:bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "addr",
+            "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "device_id",
+            "0b1d5ec7a0f3c2e4b6d8091a2c3e4f50"
+          ],
+          [
+            "device_pk",
+            "revoked"
+          ],
+          [
+            "alg",
+            "x25519"
+          ],
+          [
+            "binding_sig",
+            "AkgwRQIhAK7AKZGpObFRIIpkUOwS1gWBpNFa9H10gwJ+hs9v5GF2AiA0ZovXudz5sl8Ju4pAqPLSXvQwvjAkDpkc8KZAP9/MFQEhAsfxIAMZZEKUPYWI4BruhAQjzFT8FSFSajuFwrDL1Yhy"
+          ]
+        ],
+        "content": "oc-lock:device-revoke:v2\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\nrevoked_at: 2099-01-01T00:00:00.000Z\n"
+      },
+      "event_id": "25387756551df05de69b862025e47ae60ef80dddf46dd0efa734c3cdcb38c95e"
+    },
+    "live": {
+      "description": "Each case is the union of the records a reader received for the address, judged at verified_at. live: the binds a sender may seal to. pending: binds no revocation retires that are dated later than verified_at plus max_skew_seconds.",
+      "cases": [
+        {
+          "records": [
+            "b01",
+            "ahead"
+          ],
+          "verified_at": "2026-10-22T00:00:00.000Z",
+          "live": [
+            "b01"
+          ],
+          "pending": [
+            "ahead"
+          ]
+        },
+        {
+          "records": [
+            "ahead"
+          ],
+          "verified_at": "2098-12-31T23:55:00.000Z",
+          "live": [
+            "ahead"
+          ],
+          "pending": []
+        },
+        {
+          "records": [
+            "ahead",
+            "revocation"
+          ],
+          "verified_at": "2026-10-22T00:00:00.000Z",
+          "live": [],
+          "pending": []
+        },
+        {
+          "records": [
+            "ahead",
+            "revocation"
+          ],
+          "verified_at": "2099-06-01T00:00:00.000Z",
+          "live": [],
+          "pending": []
+        }
+      ],
+      "names": {
+        "b01": "b01-bind-v3.json expected.event, id 5397d5b6df75abda35c2b198d0828a7b54412dcff0530c7f2e9045add36433a9",
+        "ahead": "expected.ahead.event, id a6384c0e2085c15db4f39fc21610f310567979227515579c02f4707c01fbd1dd",
+        "revocation": "expected.revocation.event, id 25387756551df05de69b862025e47ae60ef80dddf46dd0efa734c3cdcb38c95e"
+      }
+    }
+  }
+}

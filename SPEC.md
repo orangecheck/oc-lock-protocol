@@ -1,7 +1,7 @@
-# OC Lock Protocol v2.1 — Specification
+# OC Lock Protocol v2.2 — Specification
 
 **Status:** Stable
-**Version:** 2.1.0 (2026-10-21). 2.0.0 was published 2026-04.
+**Version:** 2.2.0 (2026-10-22). 2.0.0 was published 2026-04.
 **Supersedes:** LOCK Protocol v1.0 (adaptor signature) and v1.1 (Proof-of-Access)
 
 ---
@@ -130,10 +130,13 @@ revocation_statement := "oc-lock:device-revoke:v2\n"
 1. Let `R` be the latest signed `revoked_at` among the remaining revocations of `(A, D)`.
 2. A bind of `(A, D)` is **live** if there is no such revocation, or if its signed `created_at` is later than `R`. A bind whose `created_at` equals `R` is retired.
 3. This holds whichever Nostr key carried each record, whichever `d` form (§3.3, §3.6) filed it, and whichever relay served it. A revocation that one relay holds retires the bind that another relay still serves.
+4. A bind whose signed `created_at` is later than the reader's clock plus a skew allowance (10 minutes RECOMMENDED) is **not live yet**. It becomes live when the clock reaches it, unless a revocation retires it first. A reader SHOULD still list it, so that it can be revoked.
 
 The times are the signed `created_at` and `revoked_at`, compared as instants. `event.created_at` is set by whoever publishes the event and orders nothing here. A revocation whose `binding_sig` is empty or does not verify for `A` retires nothing. Published under the device's own Nostr key, it still replaces that key's earlier record at the relays that take it (NIP-33). That is relay behavior: every other relay keeps serving the bind.
 
 Conforming senders MUST seal only to live binds. When no bind for `A` is live, the sender MUST NOT seal, and reports `E_REVOKED`.
+
+**Dating a revocation.** A revoker MUST sign a `revoked_at` no earlier than its own clock, and no earlier than the latest signed `created_at` among the binds of `(A, D)` it holds. A revocation dated so retires every bind of the device the revoker has seen, including one dated ahead. A client that publishes a revocation SHOULD read the device's records again before it reports the device as revoked.
 
 To **rotate**, a recipient binds a new device (§3.1–§3.3, with a new `device_id`) and revokes the old `device_id`. Publishing the new record does not retire the old one. Each device publishes under its own Nostr key (§3.4), so the two records sit at different NIP-33 coordinates and no relay replaces one with the other.
 
@@ -368,7 +371,8 @@ A client is OC Lock v2 compliant if and only if:
 - [ ] Accepts and produces all required envelope fields per §4.1
 - [ ] Verifies sender BIP-322 signatures before accepting envelope contents, with `sig.pubkey` equal to `from.address` (§4.3)
 - [ ] Uses a device record only for the address its binding statement signs, under that address's `d` tag (§3.3)
-- [ ] Seals only to live binds: applies every revocation whose BIP-322 signature verifies, from any relay and any Nostr key, by signed timestamps (§3.5)
+- [ ] Seals only to live binds: applies every revocation whose BIP-322 signature verifies, from any relay and any Nostr key, by signed timestamps, and treats a bind dated ahead of its clock as not live yet (§3.5)
+- [ ] Dates a revocation it signs no earlier than its clock and the latest `created_at` among that device's binds (§3.5)
 - [ ] Enforces `expires_at` when present
 - [ ] Emits error codes per §6
 

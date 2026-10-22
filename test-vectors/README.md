@@ -69,9 +69,12 @@ The `@orangecheck/lock-core` suite in `oc-packages/lock-core/` loads this direct
 |---|---|
 | `device-binding/b01-bind-v3.json` | A v3 bind statement (§3.2), the Nostr key derived from the device secret (§3.4), the BIP-322 `binding_sig`, and the kind-30078 event id (§3.3) |
 | `device-binding/r01-revoke-k2.json` | A revocation of the `b01` device (§3.5) carried by another Nostr key, a later re-bind, and a revocation whose `binding_sig` is over other bytes, with the binds left live in each case |
+| `device-binding/r02-bind-ahead.json` | A bind of the `b01` device dated 2099 (§3.5 rule 4) and a revocation dated at its own date, with the live and pending binds at four reader times |
 
 For `b01`, given `inputs`, a compliant implementation MUST derive `device_pk` and `nostr_pk`, build `statement` byte for byte (every line LF-terminated, the last one too), compute `event_id`, and verify `binding_sig` over `statement` for `address`. It MUST reject the same `content`, tags and `binding_sig` under `reject.other_pubkey`.
 
 For `r01`, a compliant implementation MUST build the revocation statement and the re-bind statement byte for byte, derive `carrier_pubkey` from `carrier_nostr_sk` and the re-bind's keys from `rebind_device_sk`, compute each `event_id`, and verify each `binding_sig`. It MUST find that the `reject.revocation_bad_sig` signature does not verify over the statement. Given each set of records under `expected.live.cases`, it MUST leave live exactly the binds that case lists. The first case is the one replacement cannot settle: the revocation and the `b01` bind have different `pubkey`s, so no relay replaces one with the other.
+
+For `r02`, a compliant implementation MUST build both statements byte for byte, derive the keys from `ahead_device_sk` and `carrier_nostr_sk`, compute each `event_id`, and verify each `binding_sig`. Given each case's records, judged at its `verified_at` with `max_skew_seconds`, it MUST leave live exactly the binds the case lists as `live`, and hold back exactly those it lists as `pending`.
 
 The Bitcoin key is BIP-322's own published test vector key: public, and never for real use. An event signature is not given, because BIP-340 signing takes fresh randomness; check the id and verify any signature you make.
