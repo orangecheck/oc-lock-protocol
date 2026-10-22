@@ -7,6 +7,8 @@
     "ahead_device_sk": "2ef8543c5eb2150462144bccb48cf7bda06dc328647ef7879708a72d9b12aa84",
     "ahead_created_at": "2099-01-01T00:00:00.000Z",
     "carrier_nostr_sk": "b87a7104380c36297da7529b1f6fb0aff9a93eec68c18681ffe361166b7c3d08",
+    "carrier_now_nostr_sk": "503b6c7489dc459a2456f7d86806f0472a4a2ef2a52beba7d64145df260cb3ba",
+    "revoked_now_at": "2026-10-21T00:00:00.000Z",
     "event_created_at": 1792540800,
     "max_skew_seconds": 600
   },
@@ -88,6 +90,44 @@
       },
       "event_id": "25387756551df05de69b862025e47ae60ef80dddf46dd0efa734c3cdcb38c95e"
     },
+    "revocation_now": {
+      "carrier_pubkey": "40f6dcf7a0c2b8a849eaf87faf66ecd8ab3874e73db4ea8f828ceb46fc3691a8",
+      "statement": "oc-lock:device-revoke:v2\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\nrevoked_at: 2026-10-21T00:00:00.000Z\n",
+      "binding_sig": "AkcwRAIgR76Ur6YbqibPE60Wrv/ccLJ+a8n+43c9ja6H5lq9rmMCIEm/3J6eR8Tfd0sejhWWXRLzUeOq7+bVF1oA+VJzB0zRASECx/EgAxlkQpQ9hYjgGu6EBCPMVPwVIVJqO4XCsMvViHI=",
+      "event": {
+        "pubkey": "40f6dcf7a0c2b8a849eaf87faf66ecd8ab3874e73db4ea8f828ceb46fc3691a8",
+        "created_at": 1792540800,
+        "kind": 30078,
+        "tags": [
+          [
+            "d",
+            "oc-lock:device:bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "addr",
+            "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "device_id",
+            "0b1d5ec7a0f3c2e4b6d8091a2c3e4f50"
+          ],
+          [
+            "device_pk",
+            "revoked"
+          ],
+          [
+            "alg",
+            "x25519"
+          ],
+          [
+            "binding_sig",
+            "AkcwRAIgR76Ur6YbqibPE60Wrv/ccLJ+a8n+43c9ja6H5lq9rmMCIEm/3J6eR8Tfd0sejhWWXRLzUeOq7+bVF1oA+VJzB0zRASECx/EgAxlkQpQ9hYjgGu6EBCPMVPwVIVJqO4XCsMvViHI="
+          ]
+        ],
+        "content": "oc-lock:device-revoke:v2\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\nrevoked_at: 2026-10-21T00:00:00.000Z\n"
+      },
+      "event_id": "f43519be57ed69bdb265764d36c90cbe2dafa05302efc2c8f3573b0f000cf3e1"
+    },
     "live": {
       "description": "Each case is the union of the records a reader received for the address, judged at verified_at. live: the binds a sender may seal to. pending: binds no revocation retires that are dated later than verified_at plus max_skew_seconds.",
       "cases": [
@@ -131,12 +171,35 @@
           "verified_at": "2099-06-01T00:00:00.000Z",
           "live": [],
           "pending": []
+        },
+        {
+          "records": [
+            "ahead",
+            "revocation_now"
+          ],
+          "verified_at": "2026-10-22T00:00:00.000Z",
+          "live": [],
+          "pending": [
+            "ahead"
+          ]
+        },
+        {
+          "records": [
+            "ahead",
+            "revocation_now"
+          ],
+          "verified_at": "2099-06-01T00:00:00.000Z",
+          "live": [
+            "ahead"
+          ],
+          "pending": []
         }
       ],
       "names": {
         "b01": "b01-bind-v3.json expected.event, id 5397d5b6df75abda35c2b198d0828a7b54412dcff0530c7f2e9045add36433a9",
         "ahead": "expected.ahead.event, id a6384c0e2085c15db4f39fc21610f310567979227515579c02f4707c01fbd1dd",
-        "revocation": "expected.revocation.event, id 25387756551df05de69b862025e47ae60ef80dddf46dd0efa734c3cdcb38c95e"
+        "revocation": "expected.revocation.event, id 25387756551df05de69b862025e47ae60ef80dddf46dd0efa734c3cdcb38c95e",
+        "revocation_now": "expected.revocation_now.event, id f43519be57ed69bdb265764d36c90cbe2dafa05302efc2c8f3573b0f000cf3e1"
       }
     }
   }

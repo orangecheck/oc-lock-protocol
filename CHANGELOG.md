@@ -11,10 +11,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 - **`SPEC.md` §3.5 rule 4.** A bind whose signed `created_at` is later than the reader's clock plus a skew allowance (10 minutes RECOMMENDED) is not live yet. A reader SHOULD still list it, so that it can be revoked.
 - **`SPEC.md` §3.5, dating a revocation.** A revoker signs `revoked_at` no earlier than its own clock and no earlier than the latest signed `created_at` among the binds of that device it holds. A client SHOULD read the device's records again before it reports the device as revoked.
-- **`LIFECYCLE.md` §1.1** edge case 1 and the §2 MUST rows, and the **§10** checklist, follow.
+- **`LIFECYCLE.md` §1.1** edge case 1 and the §2 MUST rows, and the **§10** checklist, follow. Edge case 2 states that a revocation dated in the future blocks its `device_id` until that date, and that the remedy is a new `device_id`.
 
 ### Added
-- **Test vector `device-binding/r02-bind-ahead.json`**: a bind of the `b01` device dated 2099-01-01, and a revocation of it dated at that bind's own date, with the live and pending binds at four reader times.
+- **Test vector `device-binding/r02-bind-ahead.json`**: a bind of the `b01` device dated 2099-01-01, a revocation of it dated at that bind's own date, and one dated 2026-10-21, with the live and pending binds at six reader times. The bind with the first revocation ends with nothing live; with the second it is pending until 2099 and live after.
 
 Reference implementation: `@orangecheck/lock-device` 0.5.0 (`liveDevices` with the reader's clock, `pendingDevices`, `revokedAtFor`).
 
