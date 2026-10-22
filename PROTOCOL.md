@@ -114,7 +114,7 @@ Bob has a laptop and a phone. Each browser has its own device key. On first sign
 
 To rotate: Bob's browser generates a new device key under a new `device_id`, signs a new binding statement and publishes it, then publishes a revocation of the old `device_id`. Old envelopes addressed to the old `device_pk` are unreadable from the new device (the old secret is gone). Senders that see the revocation seal only to the new key.
 
-To abandon a device (laptop stolen): Bob's wallet signs a revocation of the laptop's `device_id`, and he publishes it from his phone, or from any client under a fresh Nostr key. He does not need the laptop or its key. A sender that sees the revocation on any relay stops sealing to the laptop, even while another relay still serves the laptop's record (SPEC §3.5). What the laptop already received stays readable to whoever holds it.
+To abandon a device (laptop stolen): Bob's wallet signs a revocation of the laptop's `device_id`, and he publishes it from his phone or any other client, under a fresh Nostr key. He does not need the laptop or its key. A sender that sees the revocation on any relay stops sealing to the laptop, even while another relay still serves the laptop's record (SPEC §3.5). What the laptop already received stays readable to whoever holds it.
 
 ## Flow 4 — Self-vault (password manager pattern)
 

@@ -1,7 +1,7 @@
 # OC Lock Protocol v2.2 — Specification
 
 **Status:** Stable
-**Version:** 2.2.0 (2026-10-22). 2.0.0 was published 2026-04.
+**Version:** 2.2.1 (2026-10-22). 2.0.0 was published 2026-04.
 **Supersedes:** LOCK Protocol v1.0 (adaptor signature) and v1.1 (Proof-of-Access)
 
 ---
@@ -123,7 +123,7 @@ revocation_statement := "oc-lock:device-revoke:v2\n"
                      || "revoked_at: "     || iso8601_utc    || "\n"
 ```
 
-`binding_sig := BIP322(btc_address, revocation_statement)`. The event carries the §3.3 tags with `["device_pk", "revoked"]`, under the §3.3 or §3.6 `d` tag for that address. Any Nostr key MAY publish it: the device's own, another device's, or a fresh key. The authority is the address's signature, so a lost device can be revoked with the wallet alone. A revocation statement names no Nostr key, and a reader MUST NOT reject one for its `event.pubkey`.
+`binding_sig := BIP322(btc_address, revocation_statement)`. The event carries the §3.3 tags with `["device_pk", "revoked"]` and MUST use the §3.3 `d` tag, `"oc-lock:device:" || btc_address`, which every reader queries. A device revoking itself SHOULD carry the revocation under its own Nostr key, so that every relay that accepts it stops serving that device's bind, and MAY use a fresh key. A revocation of another device SHOULD be carried by a fresh Nostr key. A key that carries another live bind of the address MUST NOT carry a revocation: relays replace a record by `(pubkey, kind, d)` (NIP-33), so the revocation takes that bind's place. The authority is the address's signature, so a lost device can be revoked with the wallet alone. A revocation statement names no Nostr key, and a reader MUST NOT reject one for its `event.pubkey`.
 
 **Which binds are live.** A reader resolving address `A` collects the device records it received for `A` from every relay it queried, and discards each one whose `binding_sig` does not verify (§3.3). Then, for each `device_id` `D`:
 
@@ -142,7 +142,7 @@ To **rotate**, a recipient binds a new device (§3.1–§3.3, with a new `device
 
 ### 3.6 Multi-device
 
-A recipient with multiple devices MAY publish one record per device by using distinct `d` tags: `oc-lock:device:<addr>:<device_id>`. Senders fetching multi-device records MUST encrypt once per live device (§3.5, §4.2, `recipients[]`).
+A recipient with multiple devices publishes one record per device. Each device publishes under its own Nostr key (§3.4), so the devices' records share the §3.3 `d` tag and stay apart by `pubkey`. New records SHOULD use the §3.3 form. The per-device form `oc-lock:device:<addr>:<device_id>` remains valid and a reader accepts a record under it (§3.3), but a `#d` query for the address does not return it. Senders MUST encrypt once per live device (§3.5, §4.2, `recipients[]`).
 
 ## 4. Envelope format
 
@@ -373,6 +373,7 @@ A client is OC Lock v2 compliant if and only if:
 - [ ] Uses a device record only for the address its binding statement signs, under that address's `d` tag (§3.3)
 - [ ] Seals only to live binds: applies every revocation whose BIP-322 signature verifies, from any relay and any Nostr key, by signed timestamps, and treats a bind dated ahead of its clock as not live yet (§3.5)
 - [ ] Dates a revocation it signs no earlier than its clock and the latest `created_at` among that device's binds (§3.5)
+- [ ] Files a revocation it publishes under the §3.3 `d` tag: a self-revocation under the device's own key, a revocation of another device under a fresh key, never under a key that carries another live bind of the address (§3.5)
 - [ ] Enforces `expires_at` when present
 - [ ] Emits error codes per §6
 

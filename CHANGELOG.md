@@ -4,6 +4,17 @@ All notable changes to the OC Lock protocol and reference SDK.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.2.1] — 2026-10-22 — which key carries a revocation
+
+**Errata. Wording only: no envelope, statement, reader rule or test vector change.**
+
+### Changed
+- **`SPEC.md` §3.5.** A revocation MUST use the §3.3 `d` tag. A device revoking itself SHOULD carry it under its own Nostr key, so that every relay that accepts it stops serving that device's bind, and MAY use a fresh key. A revocation of another device SHOULD be carried by a fresh key. A key that carries another live bind of the address MUST NOT carry a revocation, because relays replace a record by `(pubkey, kind, d)`. Readers accept a revocation under any key, as before.
+- **`SPEC.md` §3.6.** New records SHOULD use the §3.3 `d` form: each device publishes under its own key, so the address form already holds one record per device. The per-device form remains valid for readers, but a `#d` query for the address does not return it.
+- **`LIFECYCLE.md`** §1.1 and the §2 compliance rows, the **§10** checklist, and **`PROTOCOL.md`** Flow 3 follow.
+
+lock.ochk.io and chat.ochk.io already publish this way.
+
 ## [2.2.0] — 2026-10-22 — the reader's clock, and dating a revocation
 
 **Minor release. No envelope, binding-statement or canonicalization change.**
