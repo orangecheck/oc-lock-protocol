@@ -1,7 +1,7 @@
-# OC Lock Protocol v2.2 — Specification
+# OC Lock Protocol v2.3 — Specification
 
 **Status:** Stable
-**Version:** 2.2.1 (2026-10-22). 2.0.0 was published 2026-04.
+**Version:** 2.3.0 (2026-10-23). 2.0.0 was published 2026-04.
 **Supersedes:** LOCK Protocol v1.0 (adaptor signature) and v1.1 (Proof-of-Access)
 
 ---
@@ -110,7 +110,11 @@ This avoids asking wallets to hold Nostr keys.
 **Authorizing a Nostr pubkey.** Protocols that treat a device record's `event.pubkey` as an identity-bound signing key (OC Chat inbox keys, device signatures) MUST derive that authorization from the signed statement, not from the event author:
 
 - A v3 record authorizes its signed `nostr_pk`.
-- A v2 statement does not name a Nostr key, so its `event.pubkey` is the event author's assertion. A v2 record authorizes its `event.pubkey` only while no v3 record exists for the same `(btc_address, device_id)` and that pair appears under exactly one `event.pubkey` in the records the verifier holds. When it appears under more than one, none of them is authorized. Clients SHOULD republish v2 devices as v3.
+- A v2 statement does not name a Nostr key, so its `event.pubkey` is the event author's assertion. From **2027-01-21T00:00:00Z** by the verifier's clock, a v2 record authorizes no Nostr key. Before that instant, a v2 record authorizes its `event.pubkey` only while no v3 record exists for the same `(btc_address, device_id)` and that pair appears under exactly one `event.pubkey` in the records the verifier holds; when it appears under more than one, none of them is authorized.
+
+A v2 bind remains live for sealing to its `device_pk` (§3.2, §3.5): a sender still encrypts to the device. A device whose live binds are all v2 has no authorized inbox key, so it receives envelopes by link or another channel the sender chooses, not at a Nostr inbox.
+
+**Re-binding a v2 device.** A client that holds the `device_sk` of a live v2 bind SHOULD publish a v3 statement for the same `btc_address`, `device_id`, `device_pk` and `created_at`, naming the `nostr_pk` derived from `device_sk` (above), as a record under that key with the §3.3 `d` tag. The re-bind MUST carry the v2 statement's `created_at`. A revocation of the device then retires the v3 bind as it retires the v2 bind (§3.5); a later `created_at` would leave the v3 bind live past a revocation dated between the two, including one the re-binding client has not seen. Published under the same key and `d` tag, the v3 record takes the v2 record's place at every relay that holds both (NIP-33). Only the device can re-bind itself, because the statement names a key derived from its secret; the wallet signs the statement. A client SHOULD offer the re-bind for each of its own devices whose live binds are all v2, and SHOULD say when v2 stops naming an inbox.
 
 ### 3.5 Rotation and revocation
 
@@ -371,6 +375,7 @@ A client is OC Lock v2 compliant if and only if:
 - [ ] Accepts and produces all required envelope fields per §4.1
 - [ ] Verifies sender BIP-322 signatures before accepting envelope contents, with `sig.pubkey` equal to `from.address` (§4.3)
 - [ ] Uses a device record only for the address its binding statement signs, under that address's `d` tag (§3.3)
+- [ ] Treats a Nostr key as a device's inbox only as §3.4 allows: from 2027-01-21 only a v3 record's signed `nostr_pk`, and still seals to a live v2 bind's `device_pk`; re-binds a v2 device with the v2 statement's `created_at` (§3.4)
 - [ ] Seals only to live binds: applies every revocation whose BIP-322 signature verifies, from any relay and any Nostr key, by signed timestamps, and treats a bind dated ahead of its clock as not live yet (§3.5)
 - [ ] Dates a revocation it signs no earlier than its clock and the latest `created_at` among that device's binds (§3.5)
 - [ ] Files a revocation it publishes under the §3.3 `d` tag: a self-revocation under the device's own key, a revocation of another device under a fresh key, never under a key that carries another live bind of the address (§3.5)

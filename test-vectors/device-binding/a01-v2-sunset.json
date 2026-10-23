@@ -1,0 +1,412 @@
+{
+  "description": "The v2 inbox sunset (SPEC §3.4) and the v3 re-bind of a v2 device. A v2 bind names no Nostr key, so before 2027-01-21T00:00:00Z it authorizes its event.pubkey only while no v3 record of the device exists and one key carries it; from 2027-01-21T00:00:00Z, by the reader's clock, it authorizes no key. It stays live for sealing to device_pk throughout. The re-bind is the same device as v3 with the same created_at, so a revocation of the device retires it; v3_rebind_later, a re-bind dated after that revocation, is what §3.4 forbids, and stays live. The address and key are BIP-322's own published test vector key (P2WPKH, mainnet); never use them for anything real.",
+  "inputs": {
+    "address": "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l",
+    "bitcoin_wif": "L3VFeEujGtevx9w18HD1fhRbCH67Az2dpCymeRE1SoPK6XQtaN2k",
+    "device_sk": "5daa8d0ceec373021572e865642d84229c8b2d9d210c72d69cc249ac96cfe987",
+    "device_id": "a01d5ec7a0f3c2e4b6d8091a2c3e4f51",
+    "created_at": "2026-06-01T00:00:00.000Z",
+    "event_created_at": 1780272000,
+    "copier_nostr_sk": "7b15d74e6885d05cb322bb145b8bc45850d561b2ea9cfd7ba79804e8c3de7f84",
+    "rebind_event_created_at": 1792800000,
+    "revoked_at": "2026-08-01T00:00:00.000Z",
+    "revocation_event_created_at": 1785542400,
+    "carrier_nostr_sk": "3d20f1da94e226c7c832438abe198a9a4a06a9920bd6568fc121e1f472dfd228",
+    "rebind_later_created_at": "2026-09-01T00:00:00.000Z",
+    "sunset": "2027-01-21T00:00:00Z"
+  },
+  "expected": {
+    "device_pk": "dbdfaa16b88deab03df94ae9caa95a180c1001fca0bb7d42a5073371b1b16178",
+    "nostr_sk": "96cdd22bf21d5af12fe983e29719c356dd29e5c16b19ee7130763c657dba4d75",
+    "nostr_pk": "c250639864aec303a4221b5baf3e27544770e1812d82ece736fca5d0dd583983",
+    "copier_pubkey": "2a90a1c52a61f501196aec87bc7f89a1294ec06bd3d5f2bf330fa4fbe89697a4",
+    "v2": {
+      "statement": "oc-lock:device-bind:v2\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: dbdfaa16b88deab03df94ae9caa95a180c1001fca0bb7d42a5073371b1b16178\ndevice_id: a01d5ec7a0f3c2e4b6d8091a2c3e4f51\ncreated_at: 2026-06-01T00:00:00.000Z\n",
+      "binding_sig": "AkcwRAIgehxW8lSaApIVM0qKwCfB/DjQ1xxI0eQ7MXIMDIVwITUCIGtUQCdq9EWWip+tdSMJQbBPwYkdJx6dpkLQnBEM6XgaASECx/EgAxlkQpQ9hYjgGu6EBCPMVPwVIVJqO4XCsMvViHI=",
+      "event": {
+        "kind": 30078,
+        "tags": [
+          [
+            "d",
+            "oc-lock:device:bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "addr",
+            "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "device_id",
+            "a01d5ec7a0f3c2e4b6d8091a2c3e4f51"
+          ],
+          [
+            "device_pk",
+            "dbdfaa16b88deab03df94ae9caa95a180c1001fca0bb7d42a5073371b1b16178"
+          ],
+          [
+            "alg",
+            "x25519"
+          ],
+          [
+            "binding_sig",
+            "AkcwRAIgehxW8lSaApIVM0qKwCfB/DjQ1xxI0eQ7MXIMDIVwITUCIGtUQCdq9EWWip+tdSMJQbBPwYkdJx6dpkLQnBEM6XgaASECx/EgAxlkQpQ9hYjgGu6EBCPMVPwVIVJqO4XCsMvViHI="
+          ]
+        ],
+        "content": "oc-lock:device-bind:v2\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: dbdfaa16b88deab03df94ae9caa95a180c1001fca0bb7d42a5073371b1b16178\ndevice_id: a01d5ec7a0f3c2e4b6d8091a2c3e4f51\ncreated_at: 2026-06-01T00:00:00.000Z\n",
+        "created_at": 1780272000,
+        "pubkey": "c250639864aec303a4221b5baf3e27544770e1812d82ece736fca5d0dd583983"
+      },
+      "event_id": "ddf5e20c60d01c1193fab4a73f96094a59727ec256daa6747ae946ab33c4534f"
+    },
+    "v2_copy": {
+      "description": "The v2 record, content and tags unchanged, carried by the copier key.",
+      "event": {
+        "kind": 30078,
+        "tags": [
+          [
+            "d",
+            "oc-lock:device:bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "addr",
+            "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "device_id",
+            "a01d5ec7a0f3c2e4b6d8091a2c3e4f51"
+          ],
+          [
+            "device_pk",
+            "dbdfaa16b88deab03df94ae9caa95a180c1001fca0bb7d42a5073371b1b16178"
+          ],
+          [
+            "alg",
+            "x25519"
+          ],
+          [
+            "binding_sig",
+            "AkcwRAIgehxW8lSaApIVM0qKwCfB/DjQ1xxI0eQ7MXIMDIVwITUCIGtUQCdq9EWWip+tdSMJQbBPwYkdJx6dpkLQnBEM6XgaASECx/EgAxlkQpQ9hYjgGu6EBCPMVPwVIVJqO4XCsMvViHI="
+          ]
+        ],
+        "content": "oc-lock:device-bind:v2\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: dbdfaa16b88deab03df94ae9caa95a180c1001fca0bb7d42a5073371b1b16178\ndevice_id: a01d5ec7a0f3c2e4b6d8091a2c3e4f51\ncreated_at: 2026-06-01T00:00:00.000Z\n",
+        "created_at": 1780272000,
+        "pubkey": "2a90a1c52a61f501196aec87bc7f89a1294ec06bd3d5f2bf330fa4fbe89697a4"
+      },
+      "event_id": "5266d5d7d781b461e0bb988bb7e7fea45edd20c2a7d15fc847794075309623e1"
+    },
+    "v3_rebind": {
+      "statement": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: dbdfaa16b88deab03df94ae9caa95a180c1001fca0bb7d42a5073371b1b16178\nnostr_pk: c250639864aec303a4221b5baf3e27544770e1812d82ece736fca5d0dd583983\ndevice_id: a01d5ec7a0f3c2e4b6d8091a2c3e4f51\ncreated_at: 2026-06-01T00:00:00.000Z\n",
+      "binding_sig": "AkcwRAIgK4hLvV1tHLc9MKAmxo6oc96eldRkyQnanyxyvZf0wWUCIAkTYBOinYSHw0HYwTZyRC1vjBY5mJgWLbOLkfByetl/ASECx/EgAxlkQpQ9hYjgGu6EBCPMVPwVIVJqO4XCsMvViHI=",
+      "event": {
+        "kind": 30078,
+        "tags": [
+          [
+            "d",
+            "oc-lock:device:bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "addr",
+            "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "device_id",
+            "a01d5ec7a0f3c2e4b6d8091a2c3e4f51"
+          ],
+          [
+            "device_pk",
+            "dbdfaa16b88deab03df94ae9caa95a180c1001fca0bb7d42a5073371b1b16178"
+          ],
+          [
+            "alg",
+            "x25519"
+          ],
+          [
+            "binding_sig",
+            "AkcwRAIgK4hLvV1tHLc9MKAmxo6oc96eldRkyQnanyxyvZf0wWUCIAkTYBOinYSHw0HYwTZyRC1vjBY5mJgWLbOLkfByetl/ASECx/EgAxlkQpQ9hYjgGu6EBCPMVPwVIVJqO4XCsMvViHI="
+          ]
+        ],
+        "content": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: dbdfaa16b88deab03df94ae9caa95a180c1001fca0bb7d42a5073371b1b16178\nnostr_pk: c250639864aec303a4221b5baf3e27544770e1812d82ece736fca5d0dd583983\ndevice_id: a01d5ec7a0f3c2e4b6d8091a2c3e4f51\ncreated_at: 2026-06-01T00:00:00.000Z\n",
+        "created_at": 1792800000,
+        "pubkey": "c250639864aec303a4221b5baf3e27544770e1812d82ece736fca5d0dd583983"
+      },
+      "event_id": "45498d671d1f796b9bc4aeff3b09efaa3ea372f6ef2c66861c69d900cbaca2be"
+    },
+    "carrier_pubkey": "eebe8356fa3e48de5294821278ee5da456ecb72385d07cdaaa65a390188b75ba",
+    "revocation": {
+      "description": "A revocation of the device, dated after its bind, carried by a fresh key (§3.5).",
+      "statement": "oc-lock:device-revoke:v2\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_id: a01d5ec7a0f3c2e4b6d8091a2c3e4f51\nrevoked_at: 2026-08-01T00:00:00.000Z\n",
+      "binding_sig": "AkcwRAIgLDGWewJIVB0Z+UyzwtMV+vNUL+eIWox8h18UeqBGNiYCIBRBoEpGJN2O7+O8+tF+ELiAAK5Pvad8AgNqgS46klyZASECx/EgAxlkQpQ9hYjgGu6EBCPMVPwVIVJqO4XCsMvViHI=",
+      "event": {
+        "kind": 30078,
+        "tags": [
+          [
+            "d",
+            "oc-lock:device:bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "addr",
+            "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "device_id",
+            "a01d5ec7a0f3c2e4b6d8091a2c3e4f51"
+          ],
+          [
+            "device_pk",
+            "revoked"
+          ],
+          [
+            "alg",
+            "x25519"
+          ],
+          [
+            "binding_sig",
+            "AkcwRAIgLDGWewJIVB0Z+UyzwtMV+vNUL+eIWox8h18UeqBGNiYCIBRBoEpGJN2O7+O8+tF+ELiAAK5Pvad8AgNqgS46klyZASECx/EgAxlkQpQ9hYjgGu6EBCPMVPwVIVJqO4XCsMvViHI="
+          ]
+        ],
+        "content": "oc-lock:device-revoke:v2\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_id: a01d5ec7a0f3c2e4b6d8091a2c3e4f51\nrevoked_at: 2026-08-01T00:00:00.000Z\n",
+        "created_at": 1785542400,
+        "pubkey": "eebe8356fa3e48de5294821278ee5da456ecb72385d07cdaaa65a390188b75ba"
+      },
+      "event_id": "3c1700bd192e342ae235d2216b365b6d56b845c3ea376700aa66fd1c2c5cc472"
+    },
+    "v3_rebind_later": {
+      "description": "A v3 re-bind dated after the revocation: what a re-bind that drops the original created_at publishes. §3.4 forbids it.",
+      "statement": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: dbdfaa16b88deab03df94ae9caa95a180c1001fca0bb7d42a5073371b1b16178\nnostr_pk: c250639864aec303a4221b5baf3e27544770e1812d82ece736fca5d0dd583983\ndevice_id: a01d5ec7a0f3c2e4b6d8091a2c3e4f51\ncreated_at: 2026-09-01T00:00:00.000Z\n",
+      "binding_sig": "AkgwRQIhAMM47dj7CRGY4PGvL877MGCnwAsqQYZNT3yM31l4w7Z6AiAzfu6LSOl2ALH88/yASu2QKKsPnOb8UTwEWatNAp6HAQEhAsfxIAMZZEKUPYWI4BruhAQjzFT8FSFSajuFwrDL1Yhy",
+      "event": {
+        "kind": 30078,
+        "tags": [
+          [
+            "d",
+            "oc-lock:device:bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "addr",
+            "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "device_id",
+            "a01d5ec7a0f3c2e4b6d8091a2c3e4f51"
+          ],
+          [
+            "device_pk",
+            "dbdfaa16b88deab03df94ae9caa95a180c1001fca0bb7d42a5073371b1b16178"
+          ],
+          [
+            "alg",
+            "x25519"
+          ],
+          [
+            "binding_sig",
+            "AkgwRQIhAMM47dj7CRGY4PGvL877MGCnwAsqQYZNT3yM31l4w7Z6AiAzfu6LSOl2ALH88/yASu2QKKsPnOb8UTwEWatNAp6HAQEhAsfxIAMZZEKUPYWI4BruhAQjzFT8FSFSajuFwrDL1Yhy"
+          ]
+        ],
+        "content": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: dbdfaa16b88deab03df94ae9caa95a180c1001fca0bb7d42a5073371b1b16178\nnostr_pk: c250639864aec303a4221b5baf3e27544770e1812d82ece736fca5d0dd583983\ndevice_id: a01d5ec7a0f3c2e4b6d8091a2c3e4f51\ncreated_at: 2026-09-01T00:00:00.000Z\n",
+        "created_at": 1792800000,
+        "pubkey": "c250639864aec303a4221b5baf3e27544770e1812d82ece736fca5d0dd583983"
+      },
+      "event_id": "bbc1a233f4249dca4008f03dfbae1f2fad55d06a08e313cd548edb229418d3d4"
+    },
+    "cases": {
+      "description": "Each case is the union of the records a reader received for the address, judged at reader_time. live lists the binds a sender may seal to; authorized lists the records whose key is the device inbox (§3.4).",
+      "cases": [
+        {
+          "records": [
+            "v2"
+          ],
+          "reader_time": "2027-01-20T23:59:59.000Z",
+          "live": [
+            "v2"
+          ],
+          "authorized": [
+            {
+              "record": "v2",
+              "pubkey": "c250639864aec303a4221b5baf3e27544770e1812d82ece736fca5d0dd583983"
+            }
+          ]
+        },
+        {
+          "records": [
+            "v2"
+          ],
+          "reader_time": "2027-01-21T00:00:00.000Z",
+          "live": [
+            "v2"
+          ],
+          "authorized": []
+        },
+        {
+          "records": [
+            "v2",
+            "v2_copy"
+          ],
+          "reader_time": "2027-01-20T23:59:59.000Z",
+          "live": [
+            "v2",
+            "v2_copy"
+          ],
+          "authorized": []
+        },
+        {
+          "records": [
+            "v2",
+            "v2_copy"
+          ],
+          "reader_time": "2027-01-21T00:00:00.000Z",
+          "live": [
+            "v2",
+            "v2_copy"
+          ],
+          "authorized": []
+        },
+        {
+          "records": [
+            "v2_copy"
+          ],
+          "reader_time": "2027-01-20T23:59:59.000Z",
+          "live": [
+            "v2_copy"
+          ],
+          "authorized": [
+            {
+              "record": "v2_copy",
+              "pubkey": "2a90a1c52a61f501196aec87bc7f89a1294ec06bd3d5f2bf330fa4fbe89697a4"
+            }
+          ]
+        },
+        {
+          "records": [
+            "v2_copy"
+          ],
+          "reader_time": "2027-01-21T00:00:00.000Z",
+          "live": [
+            "v2_copy"
+          ],
+          "authorized": []
+        },
+        {
+          "records": [
+            "v2",
+            "v3_rebind"
+          ],
+          "reader_time": "2027-01-20T23:59:59.000Z",
+          "live": [
+            "v2",
+            "v3_rebind"
+          ],
+          "authorized": [
+            {
+              "record": "v3_rebind",
+              "pubkey": "c250639864aec303a4221b5baf3e27544770e1812d82ece736fca5d0dd583983"
+            }
+          ]
+        },
+        {
+          "records": [
+            "v2",
+            "v3_rebind"
+          ],
+          "reader_time": "2027-01-21T00:00:00.000Z",
+          "live": [
+            "v2",
+            "v3_rebind"
+          ],
+          "authorized": [
+            {
+              "record": "v3_rebind",
+              "pubkey": "c250639864aec303a4221b5baf3e27544770e1812d82ece736fca5d0dd583983"
+            }
+          ]
+        },
+        {
+          "records": [
+            "v2_copy",
+            "v3_rebind"
+          ],
+          "reader_time": "2027-01-20T23:59:59.000Z",
+          "live": [
+            "v2_copy",
+            "v3_rebind"
+          ],
+          "authorized": [
+            {
+              "record": "v3_rebind",
+              "pubkey": "c250639864aec303a4221b5baf3e27544770e1812d82ece736fca5d0dd583983"
+            }
+          ]
+        },
+        {
+          "records": [
+            "v2_copy",
+            "v3_rebind"
+          ],
+          "reader_time": "2027-01-21T00:00:00.000Z",
+          "live": [
+            "v2_copy",
+            "v3_rebind"
+          ],
+          "authorized": [
+            {
+              "record": "v3_rebind",
+              "pubkey": "c250639864aec303a4221b5baf3e27544770e1812d82ece736fca5d0dd583983"
+            }
+          ]
+        },
+        {
+          "records": [
+            "v2",
+            "revocation",
+            "v3_rebind"
+          ],
+          "reader_time": "2027-01-20T23:59:59.000Z",
+          "live": [],
+          "authorized": []
+        },
+        {
+          "records": [
+            "v2",
+            "revocation",
+            "v3_rebind"
+          ],
+          "reader_time": "2027-01-21T00:00:00.000Z",
+          "live": [],
+          "authorized": []
+        },
+        {
+          "records": [
+            "v2",
+            "revocation",
+            "v3_rebind_later"
+          ],
+          "reader_time": "2027-01-20T23:59:59.000Z",
+          "live": [
+            "v3_rebind_later"
+          ],
+          "authorized": [
+            {
+              "record": "v3_rebind_later",
+              "pubkey": "c250639864aec303a4221b5baf3e27544770e1812d82ece736fca5d0dd583983"
+            }
+          ]
+        },
+        {
+          "records": [
+            "v2",
+            "revocation",
+            "v3_rebind_later"
+          ],
+          "reader_time": "2027-01-21T00:00:00.000Z",
+          "live": [
+            "v3_rebind_later"
+          ],
+          "authorized": [
+            {
+              "record": "v3_rebind_later",
+              "pubkey": "c250639864aec303a4221b5baf3e27544770e1812d82ece736fca5d0dd583983"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

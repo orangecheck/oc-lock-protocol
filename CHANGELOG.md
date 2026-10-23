@@ -4,10 +4,22 @@ All notable changes to the OC Lock protocol and reference SDK.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [2.3.0] — 2026-10-23 — v2 records stop naming an inbox
+
+**Minor release. No envelope, statement or canonicalization change; sealing and decryption are unchanged.**
+
+### Changed
+- **`SPEC.md` §3.4.** From 2027-01-21T00:00:00Z by the verifier's clock, a v2 device record authorizes no Nostr key; only a v3 record's signed `nostr_pk` is a device's inbox. Before that instant the 2.2 rule applies. A v2 bind stays live for sealing to its `device_pk`, so a device whose binds are all v2 still receives envelopes, by link rather than at a Nostr inbox.
+- **`SPEC.md` §3.4, re-binding.** A client holding a live v2 device's secret SHOULD publish a v3 statement for the same address, `device_id` and `device_pk`, under the key derived from the device secret. The re-bind MUST carry the v2 statement's `created_at`, so a revocation of the device retires it too. It replaces the v2 record at relays that hold both. A client SHOULD offer it for its own v2 devices and say when v2 stops naming an inbox.
+- **`SPEC.md` §10** gains the inbox and re-bind row.
+
+### Added
+- **Test vector `device-binding/a01-v2-sunset.json`**: a v2 bind of a device, the same record carried by another key, the device's v3 re-bind, and a revocation of the device with a re-bind that keeps `created_at` and one that does not, with the live and authorized records in seven combinations at reader times just before and at the sunset.
 
 ### Fixed
-- **`PROTOCOL.md`** Flow 1 shows the v3 binding statement, with its `nostr_pk` line, that SPEC §3.2 requires publishers to emit, and says the device record is signed by that key. No normative change.
+- **`PROTOCOL.md`** Flow 1 shows the v3 binding statement, with its `nostr_pk` line, that SPEC §3.2 requires publishers to emit, and says the device record is signed by that key.
+
+Reference implementation: `@orangecheck/lock-device` 0.6.0 (`authorizedDevices(records, { now })`, `V2_INBOX_SUNSET`).
 
 ## [2.2.1] — 2026-10-22 — which key carries a revocation
 
