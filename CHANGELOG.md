@@ -4,6 +4,11 @@ All notable changes to the OC Lock protocol and reference SDK.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Fixed
+- **`PROTOCOL.md`** Flow 1 shows the v3 binding statement, with its `nostr_pk` line, that SPEC §3.2 requires publishers to emit, and says the device record is signed by that key. No normative change.
+
 ## [2.2.1] — 2026-10-22 — which key carries a revocation
 
 **Errata. Wording only: no envelope, statement, reader rule or test vector change.**

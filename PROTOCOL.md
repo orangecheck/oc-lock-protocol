@@ -41,16 +41,17 @@ Every user does exactly one "hard" thing, and only once: they sign a BIP-322 mes
 1. Bob visits `oc-lock.example` in a new browser.
 2. He enters his Bitcoin address (or signs in via OrangeCheck).
 3. The browser generates a fresh X25519 keypair. The secret half is stored in IndexedDB and never leaves.
-4. The browser builds a **binding statement**:
+4. The browser derives the device's Nostr key from the device secret (SPEC §3.4) and builds a **binding statement** (SPEC §3.2, v3):
    ```
-   oc-lock:device-bind:v2
+   oc-lock:device-bind:v3
    address: bc1qalice...
    device_pk: 7d2f...
+   nostr_pk: 3c9a...
    device_id: a8b4...
    created_at: 2026-04-22T14:03:11Z
    ```
 5. Bob's wallet signs the statement with BIP-322. One signature prompt. One click.
-6. The browser publishes a Nostr event (kind 30078) containing the statement, the `device_pk`, and the signature. The event's `d` tag is `oc-lock:device:bc1qalice...` so anyone can find it by Bitcoin address.
+6. The browser publishes a Nostr event (kind 30078) containing the statement, the `device_pk`, and the signature, signed by the `nostr_pk` the statement names. The event's `d` tag is `oc-lock:device:bc1qalice...` so anyone can find it by Bitcoin address.
 
 Bob is now "addressable". Anyone who knows his Bitcoin address can send him an encrypted message without asking him anything.
 
