@@ -1,7 +1,7 @@
-# OC Lock Protocol v2.3 — Specification
+# OC Lock Protocol v2.4 — Specification
 
 **Status:** Stable
-**Version:** 2.3.0 (2026-10-23). 2.0.0 was published 2026-04.
+**Version:** 2.4.0 (2026-10-24). 2.0.0 was published 2026-04.
 **Supersedes:** LOCK Protocol v1.0 (adaptor signature) and v1.1 (Proof-of-Access)
 
 ---
@@ -93,7 +93,7 @@ event.pubkey  = ephemeral_nostr_pubkey   // see §3.4
 event.created_at = unix_seconds
 ```
 
-A record is evidence only for the address in its signed `binding_statement`. A reader MUST reject a record whose `d` tag is neither `"oc-lock:device:" || address` nor the §3.6 per-device form for that signed address, and a reader resolving address `A` MUST discard every record whose signed address is not `A`. The `d` tag is writable by any publisher, so a record returned by a `#d` query for `A` may carry a valid binding for a different address.
+A record is evidence only for the address in its signed `binding_statement`. A reader MUST reject a bind whose `d` tag is neither `"oc-lock:device:" || address` nor the §3.6 per-device form for that signed address, or whose `addr`, `device_id` or `device_pk` tag differs from its signed statement, and a reader resolving address `A` MUST discard every record whose signed address is not `A`. The `d` tag is writable by any publisher, so a record returned by a `#d` query for `A` may carry a valid binding for a different address. A revocation is read from its signed statement alone (§3.5).
 
 Clients SHOULD publish to at least three relays from a diverse set. The reference app uses `relay.ochk.io`, `nos.lol`, `relay.primal.net`, `relay.damus.io` and `nostr.oxtr.dev`, the default set in `@orangecheck/nostr-core`.
 
@@ -127,7 +127,7 @@ revocation_statement := "oc-lock:device-revoke:v2\n"
                      || "revoked_at: "     || iso8601_utc    || "\n"
 ```
 
-`binding_sig := BIP322(btc_address, revocation_statement)`. The event carries the §3.3 tags with `["device_pk", "revoked"]` and MUST use the §3.3 `d` tag, `"oc-lock:device:" || btc_address`, which every reader queries. A device revoking itself SHOULD carry the revocation under its own Nostr key, so that every relay that accepts it stops serving that device's bind, and MAY use a fresh key. A revocation of another device SHOULD be carried by a fresh Nostr key. A key that carries another live bind of the address MUST NOT carry a revocation: relays replace a record by `(pubkey, kind, d)` (NIP-33), so the revocation takes that bind's place. The authority is the address's signature, so a lost device can be revoked with the wallet alone. A revocation statement names no Nostr key, and a reader MUST NOT reject one for its `event.pubkey`.
+`binding_sig := BIP322(btc_address, revocation_statement)`. The event carries the §3.3 tags with `["device_pk", "revoked"]` and MUST use the §3.3 `d` tag, `"oc-lock:device:" || btc_address`, which every reader queries. A device revoking itself SHOULD carry the revocation under its own Nostr key, so that every relay that accepts it stops serving that device's bind, and MAY use a fresh key. A revocation of another device SHOULD be carried by a fresh Nostr key. A key that carries another live bind of the address MUST NOT carry a revocation: relays replace a record by `(pubkey, kind, d)` (NIP-33), so the revocation takes that bind's place. The authority is the address's signature, so a lost device can be revoked with the wallet alone. A revocation statement names no Nostr key, and a reader MUST NOT reject one for its `event.pubkey`. Nor for its tags: a reader takes a revocation's address and `device_id` from its signed statement, and MUST NOT reject one whose `binding_sig` verifies for that address because its `addr`, `device_id` or `device_pk` tag is missing or says something else, or because it is filed under another `d` tag. A publisher still writes the tags above; a reader that refused a revocation over them would leave the device live (vector `r03`).
 
 **Which binds are live.** A reader resolving address `A` collects the device records it received for `A` from every relay it queried, and discards each one whose `binding_sig` does not verify (§3.3). Then, for each `device_id` `D`:
 
@@ -136,7 +136,7 @@ revocation_statement := "oc-lock:device-revoke:v2\n"
 3. This holds whichever Nostr key carried each record, whichever `d` form (§3.3, §3.6) filed it, and whichever relay served it. A revocation that one relay holds retires the bind that another relay still serves.
 4. A bind whose signed `created_at` is later than the reader's clock plus a skew allowance (10 minutes RECOMMENDED) is **not live yet**. It becomes live when the clock reaches it, unless a revocation retires it first. A reader SHOULD still list it, so that it can be revoked.
 
-The times are the signed `created_at` and `revoked_at`, compared as instants. `event.created_at` is set by whoever publishes the event and orders nothing here. A revocation whose `binding_sig` is empty or does not verify for `A` retires nothing. Published under the device's own Nostr key, it still replaces that key's earlier record at the relays that take it (NIP-33). That is relay behavior: every other relay keeps serving the bind.
+The times are the signed `created_at` and `revoked_at`, compared as instants. `event.created_at` is set by whoever publishes the event and orders nothing here. A revocation statement signs no `created_at`. One that verifies but has no `revoked_at` line, or one that does not read as an instant, bounds nothing: it retires every bind of its `(A, D)`, whatever that bind's `created_at`, a later one included (vector `r03`). `event.created_at` does not stand in for the missing time, since anyone who republishes the event can set it. A revoker MUST sign a `revoked_at` (below); the remedy for an undated revocation is a new `device_id`, as for one dated in the future (LIFECYCLE §1.1). A revocation whose `binding_sig` is empty or does not verify for `A` retires nothing. Published under the device's own Nostr key, it still replaces that key's earlier record at the relays that take it (NIP-33). That is relay behavior: every other relay keeps serving the bind.
 
 Conforming senders MUST seal only to live binds. When no bind for `A` is live, the sender MUST NOT seal, and reports `E_REVOKED`.
 
@@ -376,7 +376,7 @@ A client is OC Lock v2 compliant if and only if:
 - [ ] Verifies sender BIP-322 signatures before accepting envelope contents, with `sig.pubkey` equal to `from.address` (§4.3)
 - [ ] Uses a device record only for the address its binding statement signs, under that address's `d` tag (§3.3)
 - [ ] Treats a Nostr key as a device's inbox only as §3.4 allows: from 2027-01-21 only a v3 record's signed `nostr_pk`, and still seals to a live v2 bind's `device_pk`; re-binds a v2 device with the v2 statement's `created_at` (§3.4)
-- [ ] Seals only to live binds: applies every revocation whose BIP-322 signature verifies, from any relay and any Nostr key, by signed timestamps, and treats a bind dated ahead of its clock as not live yet (§3.5)
+- [ ] Seals only to live binds: applies every revocation whose BIP-322 signature verifies, from any relay and any Nostr key, whatever its tags, by signed timestamps, retiring every bind of the device for one that signs no readable `revoked_at`, and treats a bind dated ahead of its clock as not live yet (§3.5)
 - [ ] Dates a revocation it signs no earlier than its clock and the latest `created_at` among that device's binds (§3.5)
 - [ ] Files a revocation it publishes under the §3.3 `d` tag: a self-revocation under the device's own key, a revocation of another device under a fresh key, never under a key that carries another live bind of the address (§3.5)
 - [ ] Enforces `expires_at` when present

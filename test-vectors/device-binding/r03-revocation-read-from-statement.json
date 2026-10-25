@@ -1,0 +1,231 @@
+{
+  "description": "Revocations of the b01-bind-v3 device read from their signed statements alone (SPEC §3.5). revocation_bare and revocation_misfiled carry the r01 revocation statement and binding_sig under odd tags: the first has only d and binding_sig, the second is filed under another address and names another device_id and a live-looking device_pk. Both retire the b01 bind and leave the r01 re-bind, signed later, live. revocation_undated is signed by the address but signs no revoked_at: it retires every bind of the device, the later re-bind too. The address and key are BIP-322’s own published test vector key (P2WPKH, mainnet); never use them for anything real.",
+  "inputs": {
+    "address": "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l",
+    "bitcoin_wif": "L3VFeEujGtevx9w18HD1fhRbCH67Az2dpCymeRE1SoPK6XQtaN2k",
+    "device_id": "0b1d5ec7a0f3c2e4b6d8091a2c3e4f50",
+    "reader_time": "2026-10-24T00:00:00.000Z",
+    "event_created_at": 1792713600
+  },
+  "expected": {
+    "b01": {
+      "event": {
+        "pubkey": "02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500",
+        "created_at": 1792454400,
+        "kind": 30078,
+        "tags": [
+          [
+            "d",
+            "oc-lock:device:bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "addr",
+            "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "device_id",
+            "0b1d5ec7a0f3c2e4b6d8091a2c3e4f50"
+          ],
+          [
+            "device_pk",
+            "3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503"
+          ],
+          [
+            "alg",
+            "x25519"
+          ],
+          [
+            "binding_sig",
+            "AkgwRQIhAN6FlMtt7waWnDeH/o5puuDixUl34zlGyqc41yaHp31GAiAZ8DMVytzOp666itwCf8rpsUNLCIU2pLwiQSPQdat+cwEhAsfxIAMZZEKUPYWI4BruhAQjzFT8FSFSajuFwrDL1Yhy"
+          ]
+        ],
+        "content": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: 3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503\nnostr_pk: 02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\ncreated_at: 2026-10-20T00:00:00.000Z\n"
+      },
+      "event_id": "5397d5b6df75abda35c2b198d0828a7b54412dcff0530c7f2e9045add36433a9"
+    },
+    "rebind": {
+      "event": {
+        "pubkey": "880cd7e3ce2ac120f0a8abd0e4f23b5902ccb40f2d07afb7a337ecf5aeb2e72f",
+        "created_at": 1792627200,
+        "kind": 30078,
+        "tags": [
+          [
+            "d",
+            "oc-lock:device:bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "addr",
+            "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "device_id",
+            "0b1d5ec7a0f3c2e4b6d8091a2c3e4f50"
+          ],
+          [
+            "device_pk",
+            "ef3d379aa9388489546d44eae67309fc82230b56e77001077ae3977905ad4d69"
+          ],
+          [
+            "alg",
+            "x25519"
+          ],
+          [
+            "binding_sig",
+            "AkcwRAIgBBsIP5wkDZ9kOjFWxWI1TLW12zOJveO+WHyFO1IyaXYCICIbQdFxxvsfNzYZkmEVb7tagK1DuTZlwrI4L+i49Im/ASECx/EgAxlkQpQ9hYjgGu6EBCPMVPwVIVJqO4XCsMvViHI="
+          ]
+        ],
+        "content": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: ef3d379aa9388489546d44eae67309fc82230b56e77001077ae3977905ad4d69\nnostr_pk: 880cd7e3ce2ac120f0a8abd0e4f23b5902ccb40f2d07afb7a337ecf5aeb2e72f\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\ncreated_at: 2026-10-22T00:00:00.000Z\n"
+      },
+      "event_id": "f0caebc5775ce17a4820487619496013cecef20182b0fc389ce0d9f545aca03b"
+    },
+    "revocation_bare": {
+      "carrier_nostr_sk": "759f3f485490e153928b578203c6bf26cbda0cd794e0a14cc58b846154fc2b88",
+      "event": {
+        "pubkey": "573a303c73c35bf66cc1179eb50fb6123112ba36332405f6fb6c59a31317e2a4",
+        "created_at": 1792713600,
+        "kind": 30078,
+        "tags": [
+          [
+            "d",
+            "oc-lock:device:bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "binding_sig",
+            "AkcwRAIgR76Ur6YbqibPE60Wrv/ccLJ+a8n+43c9ja6H5lq9rmMCIEm/3J6eR8Tfd0sejhWWXRLzUeOq7+bVF1oA+VJzB0zRASECx/EgAxlkQpQ9hYjgGu6EBCPMVPwVIVJqO4XCsMvViHI="
+          ]
+        ],
+        "content": "oc-lock:device-revoke:v2\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\nrevoked_at: 2026-10-21T00:00:00.000Z\n"
+      },
+      "event_id": "174e25942f1ba7c8d4a4ef6a605c3304cc384257d454e415a3bcc55ba6a920eb",
+      "statement": "oc-lock:device-revoke:v2\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\nrevoked_at: 2026-10-21T00:00:00.000Z\n",
+      "binding_sig": "AkcwRAIgR76Ur6YbqibPE60Wrv/ccLJ+a8n+43c9ja6H5lq9rmMCIEm/3J6eR8Tfd0sejhWWXRLzUeOq7+bVF1oA+VJzB0zRASECx/EgAxlkQpQ9hYjgGu6EBCPMVPwVIVJqO4XCsMvViHI="
+    },
+    "revocation_misfiled": {
+      "carrier_nostr_sk": "eee4a42e668190d825c59efa4f6f5fc3044917a653c47fc72e8f2be0433e884d",
+      "event": {
+        "pubkey": "304be468c052bb3bbf4eaff3caa4e562c863a33a7c48a643dc40bb93515cbd3b",
+        "created_at": 1792713600,
+        "kind": 30078,
+        "tags": [
+          [
+            "d",
+            "oc-lock:device:bc1qother00000000000000000000000000000000"
+          ],
+          [
+            "addr",
+            "bc1qother00000000000000000000000000000000"
+          ],
+          [
+            "device_id",
+            "ffffffffffffffffffffffffffffffff"
+          ],
+          [
+            "device_pk",
+            "3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503"
+          ],
+          [
+            "alg",
+            "x25519"
+          ],
+          [
+            "binding_sig",
+            "AkcwRAIgR76Ur6YbqibPE60Wrv/ccLJ+a8n+43c9ja6H5lq9rmMCIEm/3J6eR8Tfd0sejhWWXRLzUeOq7+bVF1oA+VJzB0zRASECx/EgAxlkQpQ9hYjgGu6EBCPMVPwVIVJqO4XCsMvViHI="
+          ]
+        ],
+        "content": "oc-lock:device-revoke:v2\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\nrevoked_at: 2026-10-21T00:00:00.000Z\n"
+      },
+      "event_id": "23f387449b24b47e0c23a2462d55654fd62e0473edbec0c0ae4821d810a6a5b7",
+      "statement": "oc-lock:device-revoke:v2\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\nrevoked_at: 2026-10-21T00:00:00.000Z\n",
+      "binding_sig": "AkcwRAIgR76Ur6YbqibPE60Wrv/ccLJ+a8n+43c9ja6H5lq9rmMCIEm/3J6eR8Tfd0sejhWWXRLzUeOq7+bVF1oA+VJzB0zRASECx/EgAxlkQpQ9hYjgGu6EBCPMVPwVIVJqO4XCsMvViHI="
+    },
+    "revocation_undated": {
+      "carrier_nostr_sk": "e71f6e57ffe307c2e32ab18ef70a0c66d755bd4f49162b611dd470b4f66df507",
+      "event": {
+        "pubkey": "879c51cfba56946763326a12425a089941054c168d7fd4530f63184c842c0bc0",
+        "created_at": 1792713600,
+        "kind": 30078,
+        "tags": [
+          [
+            "d",
+            "oc-lock:device:bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "addr",
+            "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "device_id",
+            "0b1d5ec7a0f3c2e4b6d8091a2c3e4f50"
+          ],
+          [
+            "device_pk",
+            "revoked"
+          ],
+          [
+            "alg",
+            "x25519"
+          ],
+          [
+            "binding_sig",
+            "AkgwRQIhAImY4LVRa5QjJpRdKAy6QpBSK+6p+WXwehJQT2qZVeh5AiAN6YBT7Yp221EDaiIIpSAcDhDyAWXt0qjBlRpZZYgWsAEhAsfxIAMZZEKUPYWI4BruhAQjzFT8FSFSajuFwrDL1Yhy"
+          ]
+        ],
+        "content": "oc-lock:device-revoke:v2\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\n"
+      },
+      "event_id": "82e22304cf6c2929518ff49719a8a22a7db0a711234075d12d4b3b33886025de",
+      "statement": "oc-lock:device-revoke:v2\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\n",
+      "binding_sig": "AkgwRQIhAImY4LVRa5QjJpRdKAy6QpBSK+6p+WXwehJQT2qZVeh5AiAN6YBT7Yp221EDaiIIpSAcDhDyAWXt0qjBlRpZZYgWsAEhAsfxIAMZZEKUPYWI4BruhAQjzFT8FSFSajuFwrDL1Yhy"
+    },
+    "live": {
+      "description": "Each case is the union of the records a reader received for the address, judged at inputs.reader_time. live lists the binds a sender may seal to.",
+      "cases": [
+        {
+          "records": [
+            "b01",
+            "revocation_bare"
+          ],
+          "live": []
+        },
+        {
+          "records": [
+            "b01",
+            "revocation_misfiled"
+          ],
+          "live": []
+        },
+        {
+          "records": [
+            "b01",
+            "rebind",
+            "revocation_bare"
+          ],
+          "live": [
+            "rebind"
+          ]
+        },
+        {
+          "records": [
+            "b01",
+            "revocation_undated"
+          ],
+          "live": []
+        },
+        {
+          "records": [
+            "b01",
+            "rebind",
+            "revocation_undated"
+          ],
+          "live": []
+        }
+      ],
+      "names": {
+        "b01": "expected.b01.event (b01-bind-v3.json expected.event), id 5397d5b6df75abda35c2b198d0828a7b54412dcff0530c7f2e9045add36433a9",
+        "rebind": "expected.rebind.event (r01-revoke-k2.json expected.rebind.event), id f0caebc5775ce17a4820487619496013cecef20182b0fc389ce0d9f545aca03b",
+        "revocation_bare": "expected.revocation_bare.event, id 174e25942f1ba7c8d4a4ef6a605c3304cc384257d454e415a3bcc55ba6a920eb",
+        "revocation_misfiled": "expected.revocation_misfiled.event, id 23f387449b24b47e0c23a2462d55654fd62e0473edbec0c0ae4821d810a6a5b7",
+        "revocation_undated": "expected.revocation_undated.event, id 82e22304cf6c2929518ff49719a8a22a7db0a711234075d12d4b3b33886025de"
+      }
+    }
+  }
+}

@@ -4,6 +4,20 @@ All notable changes to the OC Lock protocol and reference SDK.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.4.0] — 2026-10-24 — a revocation is read from its signed statement
+
+**Minor release. No envelope, statement or canonicalization change; publishers are unchanged.**
+
+### Changed
+- **`SPEC.md` §3.3, §3.5.** A reader takes a revocation's address and `device_id` from its signed statement. It MUST NOT reject a revocation whose `binding_sig` verifies because its `addr`, `device_id` or `device_pk` tag is missing or says something else, or because of its `d` tag. The §3.3 tag rules apply to binds, whose fields a reader uses. Publishers still write every §3.3 tag, with `["device_pk", "revoked"]`.
+- **`SPEC.md` §3.5.** A revocation that verifies but signs no readable `revoked_at` retires every bind of its device, whatever that bind's `created_at`. A revocation signs no `created_at`, and `event.created_at` does not stand in, since whoever republishes the event sets it. A revoker MUST still sign `revoked_at`.
+- **`SPEC.md` §10** says the same.
+
+### Added
+- **Test vector `device-binding/r03-revocation-read-from-statement.json`**: the `r01` revocation under two sets of odd tags (only `d` and `binding_sig`; another address's `d`, `addr` and `device_id` and a live-looking `device_pk`), and a revocation of the `b01` device that signs no `revoked_at`, with the binds left live in five combinations.
+
+Reference implementation: `@orangecheck/lock-device` 0.7.0 (`parseDeviceEvent`, `liveDevices`).
+
 ## [2.3.0] — 2026-10-23 — v2 records stop naming an inbox
 
 **Minor release. No envelope, statement or canonicalization change; sealing and decryption are unchanged.**
