@@ -350,6 +350,10 @@ OC Lock v2 intentionally does **not** implement full double-ratchet forward secr
 
 Users with strict FS requirements should use Signal.
 
+### 7.5 Envelopes sealed by an agent
+
+A verifier that accepts an envelope sealed by an OC Agent under a `lock:seal` or `lock:chat` delegation MUST take each recipient from the envelope's `recipients[]`, never from the agent action's `scope_exercised` (oc-agent-protocol SPEC §8.3 step 12a). `mime` and the byte limits describe the plaintext, so a recipient checks them against what it decrypts.
+
 ## 8. Test vectors
 
 Test vectors are published as JSON files under `packages/core/test/vectors/` in the companion repository. Each vector includes:

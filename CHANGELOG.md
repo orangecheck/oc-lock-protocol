@@ -4,6 +4,15 @@ All notable changes to the OC Lock protocol and reference SDK.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+**No envelope, statement or canonicalization change.**
+
+- **`SPEC.md` §7.5.** A verifier of an envelope sealed by an OC Agent under a
+  `lock:seal` or `lock:chat` delegation takes each recipient from the
+  envelope's `recipients[]`, never from the agent action's `scope_exercised`;
+  a recipient checks `mime` and the byte limits against the plaintext.
+
 ## [2.4.0] — 2026-10-24 — a revocation is read from its signed statement
 
 **Minor release. No envelope, statement or canonicalization change; publishers are unchanged.**
