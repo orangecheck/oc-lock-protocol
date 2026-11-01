@@ -140,6 +140,8 @@ The times are the signed `created_at` and `revoked_at`, compared as instants. `e
 
 Conforming senders MUST seal only to live binds. When no bind for `A` is live, the sender MUST NOT seal, and reports `E_REVOKED`.
 
+**A cut-off read is not an answer.** Anyone can publish under `"oc-lock:device:" || A`, and a relay answers a query newest first, up to a cap of its own, so records dated after a revocation can push it out of an answer that still ends in EOSE. A reader MUST page each relay's answer for `A` with `until` until a page comes back shorter than the `limit` it asked for. A relay whose read stopped at a full page (one that added no record, or the reader's own page bound), or that stopped answering, has not answered: the reader MUST NOT count it among the answers it requires before the absence of a revocation counts. A sender left without enough complete answers MUST NOT seal, and reports `E_RELAY_UNREACHABLE`.
+
 **Dating a revocation.** A revoker MUST sign a `revoked_at` no earlier than its own clock, and no earlier than the latest signed `created_at` among the binds of `(A, D)` it holds. A revocation dated so retires every bind of the device the revoker has seen, including one dated ahead. A client that publishes a revocation SHOULD read the device's records again before it reports the device as revoked.
 
 To **rotate**, a recipient binds a new device (§3.1–§3.3, with a new `device_id`) and revokes the old `device_id`. Publishing the new record does not retire the old one. Each device publishes under its own Nostr key (§3.4), so the two records sit at different NIP-33 coordinates and no relay replaces one with the other.
@@ -308,7 +310,7 @@ Client errors MUST use these codes. Users see short human-readable messages; log
 | `E_EXPIRED` | `expires_at` is in the past. |
 | `E_REVOKED` | No device record for the recipient's address is live: a verified revocation retired each one (§3.5). |
 | `E_PAYMENT_UNMET` | Relay could not verify required payment. |
-| `E_RELAY_UNREACHABLE` | Relay did not respond. |
+| `E_RELAY_UNREACHABLE` | Too few relays answered in full (§3.5). |
 | `E_BLOCK_UNMET` | (OC Chat) Seal release requested before `unlock_block + confirmations`. |
 | `E_BEACON_UNAVAILABLE` | (OC Chat) Seal beacon did not respond. |
 | `E_NO_POSTAGE` | (OC Chat) `pay-to-reach` message from a non-contact lacked valid postage. |

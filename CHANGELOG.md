@@ -12,6 +12,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `lock:seal` or `lock:chat` delegation takes each recipient from the
   envelope's `recipients[]`, never from the agent action's `scope_exercised`;
   a recipient checks `mime` and the byte limits against the plaintext.
+- **`SPEC.md` §3.5.** A cut-off read is not an answer. A reader pages each
+  relay's answer for an address's device records with `until` until a page
+  comes back short; a relay whose read stopped at a full page, or that stopped
+  answering, does not count toward the answers it requires before a
+  revocation's absence counts. A sender left without enough complete answers
+  reports `E_RELAY_UNREACHABLE` (§6).
 
 ## [2.4.0] — 2026-10-24 — a revocation is read from its signed statement
 
