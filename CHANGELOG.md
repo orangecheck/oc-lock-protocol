@@ -33,8 +33,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   never "no revocation".
 - **`SPEC.md` §6, `SECURITY.md`.** `E_RELAY_UNREACHABLE` also covers a relay
   cut off. The denial-of-service item names the cost this accepts: anyone who
-  floods one relay with an address's device records can stop every sender to
-  that address.
+  floods one relay with events under an address's device-record tag, valid
+  records or not, can stop every sender to that address.
 
 ## [2.4.0] — 2026-10-24 — a revocation is read from its signed statement
 
