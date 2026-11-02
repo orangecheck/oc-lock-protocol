@@ -21,7 +21,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **`SPEC.md` §3.5.** A reader verifies each event under NIP-01 before it
   merges or deduplicates what relays returned for an address, and drops one
   that fails, so a relay serving junk under another record's event id cannot
-  displace that record.
+  displace that record. The check is on the Nostr wrapper, never on which key
+  carries a record.
 
 ## [2.4.0] — 2026-10-24 — a revocation is read from its signed statement
 
