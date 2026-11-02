@@ -23,6 +23,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   that fails, so a relay serving junk under another record's event id cannot
   displace that record. The check is on the Nostr wrapper, never on which key
   carries a record.
+- **`SPEC.md` §3.3, §3.5.** A client keeps publishing a device record until at
+  least two of the relays readers ask, each asked alone, serve back a copy
+  that verifies (every one, when they ask fewer than two), and reports the
+  device as set up or revoked only then. The answers §3.5 requires before a
+  revocation's absence counts are now a number: the read floor, the number of
+  relays queried, less 2, plus 1, and never fewer than one (four of five),
+  with none of them cut off; a cut-off relay leaves the result unchecked,
+  never "no revocation".
 
 ## [2.4.0] — 2026-10-24 — a revocation is read from its signed statement
 
