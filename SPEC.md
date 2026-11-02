@@ -310,7 +310,7 @@ Client errors MUST use these codes. Users see short human-readable messages; log
 | `E_EXPIRED` | `expires_at` is in the past. |
 | `E_REVOKED` | No device record for the recipient's address is live: a verified revocation retired each one (§3.5). |
 | `E_PAYMENT_UNMET` | Relay could not verify required payment. |
-| `E_RELAY_UNREACHABLE` | Too few relays answered in full (§3.5). |
+| `E_RELAY_UNREACHABLE` | Too few relays answered in full, or one was cut off (§3.5). |
 | `E_BLOCK_UNMET` | (OC Chat) Seal release requested before `unlock_block + confirmations`. |
 | `E_BEACON_UNAVAILABLE` | (OC Chat) Seal beacon did not respond. |
 | `E_NO_POSTAGE` | (OC Chat) `pay-to-reach` message from a non-contact lacked valid postage. |

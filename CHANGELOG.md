@@ -31,6 +31,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   relays queried, less 2, plus 1, and never fewer than one (four of five),
   with none of them cut off; a cut-off relay leaves the result unchecked,
   never "no revocation".
+- **`SPEC.md` §6, `SECURITY.md`.** `E_RELAY_UNREACHABLE` also covers a relay
+  cut off. The denial-of-service item names the cost this accepts: anyone who
+  floods one relay with an address's device records can stop every sender to
+  that address.
 
 ## [2.4.0] — 2026-10-24 — a revocation is read from its signed statement
 
