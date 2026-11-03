@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 **No envelope, statement or canonicalization change.**
 
+- **`PROTOCOL.md` Flow 2.** The release request carries
+  `{ envelope_id, unlock_address, tx_proof }`, as SPEC §4.4 has it, not
+  `{ envelope_id, tx_id }`.
 - **`SPEC.md` §11.** OC Chat claims kinds 30110–30115, not 30110–30112:
   30114 is its directory, and 30113 and 30115 are reserved. The line now
   names OC Chat's §14 as the source for those kinds and the public family

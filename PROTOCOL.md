@@ -103,7 +103,7 @@ Anyone with the link can see: sender, amount, payment address, relay. They canno
 1. Bob clicks the link. The app shows the price and the relay URL clearly.
 2. Bob pays 10k sats from his wallet to `bc1qalice...`. (The app shows a QR code and a mempool.space link.)
 3. Bob authenticates to the relay with OrangeCheck sign-in (BIP-322 challenge-response, same wallet).
-4. The app submits `{ envelope_id, tx_id }` to the relay.
+4. The app asks the relay for release with `{ envelope_id, unlock_address, tx_proof }` (SPEC §4.4): `tx_proof` identifies Bob's confirmed payment, and `unlock_address` is the address he paid from.
 5. Relay checks: tx confirmed? right amount? right recipient? Then it unwraps `content_key` from its own device key, re-wraps it for Bob's device key (fetched from Nostr), and returns the new `recipients[]` entry.
 6. Bob's app decrypts normally.
 
