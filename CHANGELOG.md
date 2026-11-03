@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 **No envelope, statement or canonicalization change.**
 
+- **`SPEC.md` §11.** OC Chat claims kinds 30110–30115, not 30110–30112:
+  30114 is its directory, and 30113 and 30115 are reserved. The line now
+  names OC Chat's §14 as the source for those kinds and the public family
+  registry in place of a workspace file readers cannot open.
 - **`SPEC.md` §7.5.** A verifier of an envelope sealed by an OC Agent under a
   `lock:seal` or `lock:chat` delegation takes each recipient from the
   envelope's `recipients[]`, never from the agent action's `scope_exercised`;

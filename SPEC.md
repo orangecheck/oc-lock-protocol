@@ -391,7 +391,7 @@ A client is OC Lock v2 compliant if and only if:
 ## 11. IANA / external identifiers
 
 - Nostr event kind: **30078** (addressable, general replaceable range). The `d` tag namespace `oc-lock:device:*` is claimed by this spec.
-- Nostr event kinds **30110–30112** (OC Chat), d-tag namespace `oc-lock-chat-*`, are claimed by [`oc-chat-protocol`](https://github.com/orangecheck/oc-chat-protocol) as a mode of this verb. OC Chat DMs transport over NIP-59 gift-wrap (kind-1059). See the workspace `KINDS.md`.
+- Nostr event kinds **30110–30115** (OC Chat), d-tag namespace `oc-lock-chat-*`, are claimed by [`oc-chat-protocol`](https://github.com/orangecheck/oc-chat-protocol) as a mode of this verb: 30110–30112 and 30114 in use, 30113 and 30115 reserved (its §14 is the source for these kinds). OC Chat DMs transport over NIP-59 gift-wrap (kind-1059). The family's kind registry is public at [ochk.io/docs/ecosystem/nostr-kind-30078](https://ochk.io/docs/ecosystem/nostr-kind-30078).
 - File extension: `.lock`
 - MIME type: `application/vnd.oc-lock+json` (self-allocated; not IANA-registered as of this writing).
 
