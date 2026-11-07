@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 **No envelope, statement or canonicalization change.**
 
+- **Reference relay set** (§3.3): names `nostr.mom` in place of `relay.damus.io`, as `@orangecheck/nostr-core` 0.8.2's default set does and the reference app now uses. Non-normative; nothing a client MUST do changes.
 - **`PROTOCOL.md` Flow 2.** The release request carries
   `{ envelope_id, unlock_address, tx_proof }`, as SPEC §4.4 has it, not
   `{ envelope_id, tx_id }`.
