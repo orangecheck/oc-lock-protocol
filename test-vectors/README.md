@@ -4,53 +4,47 @@ Fixed inputs, fixed intermediate byte strings, fixed outputs. Any conforming OC 
 
 ## Structure
 
-Each `.json` file in this directory is an independent vector:
+Each envelope vector (`v01`–`v04`) is an independent `.json` file:
 
 ```json
 {
     "description": "what this vector exercises",
     "inputs": {
-        "payload": "<utf8 string>",
-        "sender": { "address": "...", "signature": "..." },
+        "plaintext": "<utf8 string>",
         "recipients": [
             {
                 "address": "...",
                 "device_id": "...",
                 "device_pk": "<hex>",
-                "device_sk": "<hex, provided for decrypt-side checks>",
-                "eph_sk": "<hex, fixed so the KEM is deterministic>"
+                "device_sk": "<hex, provided for decrypt-side checks>"
             }
         ],
-        "nonce_ct": "<24-char hex>",
-        "content_key": "<64-char hex>",
-        "created_at": "<iso8601 utc>"
+        "expected_sig_value": "<base64, a placeholder, not a real BIP-322 signature>"
     },
     "expected": {
-        "envelope": { "...": "..." },
-        "canonical": "<exact canonical bytes, LF-terminated, as a string>",
-        "id": "<64-char hex>"
+        "envelope": { "id": "<64-char hex>", "...": "..." }
     }
 }
 ```
 
 ## Conformance
 
-Given the `inputs`, a compliant implementation MUST:
+Given a vector, a compliant implementation MUST:
 
-1. Derive per-recipient KEKs and wrap `content_key` exactly as specified in §4.2.
-2. Produce the same `envelope` object (shape + field values).
-3. Serialize to the **byte-identical** `canonical` string.
-4. Compute the same `id` (SHA-256 of canonical bytes with `sig.value` emptied).
+1. Open `expected.envelope` with each recipient's `device_sk` (§4.3 steps 3–7) and recover `inputs.plaintext`. The AAD is §5's draft hash, final LF included.
+2. Compute `id` as the SHA-256 of the canonical envelope (§5) with `id` and `sig.value` set to `""`, final LF included, and get `expected.envelope.id`.
+3. Find `sig.value` equal to `inputs.expected_sig_value`. It is not a signature, so these vectors check no sender signature (§4.3 step 2).
 
 If any of these diverge, the implementation is non-conformant. Typical bugs:
 
 - Not sorting `recipients[]` by `device_id` ascending in the canonical form.
+- Hashing the canonical JSON without its final LF, or removing `id` and `sig` instead of setting them to `""`.
 - Emitting `"expires_at": undefined` rather than `"expires_at": null`.
 - Using sloppy JSON encoding (spaces, numeric suffixes, object key ordering).
 
 ## Test harness
 
-The `@orangecheck/lock-core` suite in `oc-packages/lock-core/` loads this directory and asserts byte-equality per vector. New implementations should add a similar test.
+The `@orangecheck/lock-core` suite in `oc-packages/lock-core/` loads this directory, opens each envelope for each recipient, and checks each `id` as in step 2. New implementations should add a similar test.
 
 ## Current vectors
 

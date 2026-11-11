@@ -36,7 +36,7 @@ This document covers the **OC Lock v2 protocol specification** in this repositor
 ### Assumptions the protocol makes
 
 - **Bitcoin's security model holds.** ECDSA / Schnorr over secp256k1 remains unforgeable at current parameter sizes.
-- **BIP-322 is implemented correctly** by both signing and verifying clients. Implementations should pin a verifier to a version known to handle all address types (P2WPKH, P2TR, P2WSH, P2PKH).
+- **BIP-322 is implemented correctly** by both signing and verifying clients. Implementations should pin a verifier to a version known to handle each address type in SPEC §2 (P2WPKH, P2SH-P2WPKH, P2TR, P2PKH). `@orangecheck/bip322`, the verifier the reference packages use, checks a P2TR signature on the key path only and does not check P2WSH.
 - **The recipient's browser (or runtime) isn't compromised.** Device secret keys live in untrusted territory by design; if the recipient's device is hostile, all bets are off.
 - **Randomness is strong.** `crypto.getRandomValues` / CSPRNG is used for every nonce and ephemeral keypair. Weak randomness on a sender breaks confidentiality against passive observers.
 

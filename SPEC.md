@@ -30,7 +30,7 @@ A sender and recipient may be the same person (vault-for-self, password manager 
 
 An **OC identity** is the pair `(btc_address, attestation_id)` where:
 
-- `btc_address` is a mainnet Bitcoin address (P2WPKH, P2TR, or P2PKH)
+- `btc_address` is a mainnet Bitcoin address (P2WPKH, P2SH-P2WPKH, P2TR, or P2PKH)
 - `attestation_id` is the SHA-256 of a canonical OrangeCheck message signed by that address per the [OrangeCheck SPEC §3](https://ochk.io/docs/spec)
 
 A recipient MUST have an OC identity known to the sender. OC Lock does not publish recipient pubkeys; it publishes **device keys** (§3) addressable by the recipient's Bitcoin address.
@@ -160,7 +160,7 @@ A sealed vault is a single canonical JSON object called the **envelope**. It is 
 {
   "v": 2,
   "kind": "identity" | "payment",
-  "id": "<32-byte hex envelope id, SHA-256 of canonical envelope without this field and without sig>",
+  "id": "<32-byte hex envelope id, SHA-256 of the canonical envelope with this field and sig.value set to \"\" (§5)>",
   "alg": { "kem": "x25519", "aead": "aes-256-gcm", "kdf": "hkdf-sha256" },
   "from": {
     "address": "<btc address of sender>",
@@ -201,7 +201,7 @@ Given a `payload` (bytes) and one or more recipient device records:
 
 1. Generate random `content_key` (32 bytes).
 2. Generate random `nonce_ct` (12 bytes).
-3. Compute `ciphertext = AES-256-GCM(content_key, nonce_ct, payload, aad=envelope_id_draft)` where `envelope_id_draft` is the SHA-256 of the canonical envelope up to and excluding `ciphertext`, `sig`, and `recipients[*].wrapped_key` fields.
+3. Compute `ciphertext = AES-256-GCM(content_key, nonce_ct, payload, aad=envelope_id_draft)` where `envelope_id_draft` is the SHA-256 of the canonical envelope with `id`, `ciphertext`, `sig.value` and each `recipients[*].wrapped_key` set to `""` (§5). The draft carries each recipient entry step 4 builds, so an implementation runs step 4 first; step 4 does not use the ciphertext.
 4. For each recipient device:
    a. Generate an ephemeral X25519 keypair `(eph_sk, eph_pk)`.
    b. `shared = X25519(eph_sk, device_pk)` (32 bytes).
@@ -209,7 +209,7 @@ Given a `payload` (bytes) and one or more recipient device records:
    d. Generate `nonce_kek` (12 bytes).
    e. `wrapped_key = AES-256-GCM(kek, nonce_kek, content_key, aad=device_id)`.
    f. Zeroize `eph_sk`.
-5. Compute final canonical envelope; set `id = sha256(canonical_bytes_without_sig)`.
+5. Set `id` to the SHA-256 of the canonical envelope with `id` and `sig.value` set to `""` (§5).
 6. `sig.value = BIP322(sender_addr, id)`.
 7. Zeroize `content_key`.
 
@@ -265,8 +265,8 @@ The relay is a trust anchor. Clients MUST display the relay URL and identity pro
 
 **Recipient-exclusion rule (NORMATIVE).** For `kind ∈ {"chat", "chat-seal"}`, the `recipients[]` array is delivery routing, not content, and is excluded from both the AEAD AAD and the signed envelope id:
 
-- `envelope_id_draft` (the AAD, §4.2 step 3) is computed with `ciphertext=""`, `sig={}`, **and `recipients=[]`** (the entire array emptied, not merely each `wrapped_key`).
-- the envelope `id` (§4.1) is computed with `sig.value=""` **and `recipients=[]`**.
+- `envelope_id_draft` (the AAD, §4.2 step 3) is computed with `id=""`, `ciphertext=""`, `sig.value=""` **and `recipients=[]`** (the entire array emptied, not merely each `wrapped_key`).
+- the envelope `id` (§4.1) is computed with `id=""`, `sig.value=""` **and `recipients=[]`**.
 
 This makes a chat envelope **re-keyable**: a holder — a payment relay (§4.4) or an OC Chat seal beacon (§4.6) — MAY replace `recipients[]` after sealing (a **re-wrap**), and the `id`, the sender `sig`, and the ciphertext GCM tag all remain valid. The re-wrap output is a detached `recipients[]` entry merged locally **without** recomputing the signed id. For `kind ∈ {"identity","payment"}` the base rules of §4.2 are unchanged. A `"chat"` envelope MAY carry an optional `postage` object (Lightning anti-spam); thread state (`conversation_id`, `seq`, `parent_id`) lives inside the encrypted payload. See `oc-chat-protocol` SPEC §3, §5, §6.
 
@@ -295,7 +295,7 @@ The canonical byte representation of an envelope is required for computing `id` 
 
 Reference: [RFC 8785 JSON Canonicalization Scheme](https://www.rfc-editor.org/rfc/rfc8785), with the additional requirement on `recipients[]` ordering.
 
-`envelope_id_draft` used as AAD in step 4.2.3 and 4.3.7 is computed from the envelope with `ciphertext=""`, `sig={}`, and each `recipients[*].wrapped_key=""`, then canonicalized.
+Both hashes take these bytes, the final LF included, over the envelope as sealed with some fields set to `""`. `id` (§4.2 step 5) sets `id` and `sig.value`. `envelope_id_draft`, the AAD in §4.2 step 3 and §4.3 step 7, sets `id`, `ciphertext`, `sig.value` and each `recipients[*].wrapped_key`, and takes `sig.alg` as `"bip322"` and `sig.pubkey` as `from.address`. Test vectors v01–v04 pin both: each `id` is that hash, and each ciphertext opens under that AAD.
 
 ## 6. Errors
 

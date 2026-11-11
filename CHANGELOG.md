@@ -8,6 +8,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 **No envelope, statement or canonicalization change.**
 
+- **§4.1, §4.2, §4.5, §5 id and AAD bytes** (2026-11-11). They name the fields
+  the reference lock-core and vectors v01–v04 set to `""`: `id` and
+  `sig.value` for the id; those plus `ciphertext` and each
+  `recipients[*].wrapped_key` for the AAD, with `sig.alg` `"bip322"` and
+  `sig.pubkey` the sender's address. The earlier wording removed `sig` (§4.1,
+  step 5), excluded fields (step 3) or set `sig={}` (§5), and none of those
+  matches a vector. Step 3 says it runs after step 4, whose recipient entries
+  the AAD covers. §4.5's chat bullets match OC Chat SPEC §3. §5 says both
+  hashes include the final LF. `test-vectors/README.md` shows the fields
+  v01–v04 carry and the checks they support.
+- **§2, SECURITY** (2026-11-11). §2 names P2SH-P2WPKH among identity
+  addresses, as the BIP-322 verifier takes it. SECURITY's BIP-322 row names
+  the same four types and says `@orangecheck/bip322` checks P2TR on the key
+  path and not P2WSH.
 - **Reference relay set** (§3.3): names `nostr.mom` in place of `relay.damus.io`, as `@orangecheck/nostr-core` 0.8.2's default set does and the reference app now uses. Non-normative; nothing a client MUST do changes.
 - **`PROTOCOL.md` Flow 2.** The release request carries
   `{ envelope_id, unlock_address, tx_proof }`, as SPEC §4.4 has it, not
