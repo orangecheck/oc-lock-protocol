@@ -8,6 +8,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 **No envelope, statement or canonicalization change.**
 
+- **§4.2, §4.3, §5 AAD form** (2026-11-11). The content AAD is the raw
+  32-byte `envelope_id_draft` digest, never its hex, and the key-wrap AAD is
+  the UTF-8 bytes of `device_id`, as lock-core passes them. §5 says `id` is a
+  different hash, written as hex, that never feeds the AEAD. v01–v04 open that
+  way and not with the hex.
 - **§4.1, §4.2, §4.5, §5 id and AAD bytes** (2026-11-11). They name the fields
   the reference lock-core and vectors v01–v04 set to `""`: `id` and
   `sig.value` for the id; those plus `ciphertext` and each

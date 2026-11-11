@@ -201,13 +201,13 @@ Given a `payload` (bytes) and one or more recipient device records:
 
 1. Generate random `content_key` (32 bytes).
 2. Generate random `nonce_ct` (12 bytes).
-3. Compute `ciphertext = AES-256-GCM(content_key, nonce_ct, payload, aad=envelope_id_draft)` where `envelope_id_draft` is the SHA-256 of the canonical envelope with `id`, `ciphertext`, `sig.value` and each `recipients[*].wrapped_key` set to `""` (§5). The draft carries each recipient entry step 4 builds, so an implementation runs step 4 first; step 4 does not use the ciphertext.
+3. Compute `ciphertext = AES-256-GCM(content_key, nonce_ct, payload, aad=envelope_id_draft)` where `envelope_id_draft` is the SHA-256 of the canonical envelope with `id`, `ciphertext`, `sig.value` and each `recipients[*].wrapped_key` set to `""` (§5). The AAD is that 32-byte digest itself, not its hex. The draft carries each recipient entry step 4 builds, so an implementation runs step 4 first; step 4 does not use the ciphertext.
 4. For each recipient device:
    a. Generate an ephemeral X25519 keypair `(eph_sk, eph_pk)`.
    b. `shared = X25519(eph_sk, device_pk)` (32 bytes).
    c. `kek = HKDF-SHA256(ikm=shared, salt=nonce_ct, info="oc-lock/v2/kek:" || device_id, L=32)`.
    d. Generate `nonce_kek` (12 bytes).
-   e. `wrapped_key = AES-256-GCM(kek, nonce_kek, content_key, aad=device_id)`.
+   e. `wrapped_key = AES-256-GCM(kek, nonce_kek, content_key, aad=device_id)`, the AAD being the UTF-8 bytes of `device_id`.
    f. Zeroize `eph_sk`.
 5. Set `id` to the SHA-256 of the canonical envelope with `id` and `sig.value` set to `""` (§5).
 6. `sig.value = BIP322(sender_addr, id)`.
@@ -222,7 +222,7 @@ Given an envelope and a local `(device_id, device_sk)` pair:
 3. Find a recipient entry matching your local `device_id`. If none, this vault is not for you — reject.
 4. `shared = X25519(device_sk, eph_pk)`.
 5. `kek = HKDF-SHA256(ikm=shared, salt=nonce_ct, info="oc-lock/v2/kek:" || device_id, L=32)`.
-6. `content_key = AES-256-GCM.decrypt(kek, nonce_kek, wrapped_key, aad=device_id)`. Reject on tag failure.
+6. `content_key = AES-256-GCM.decrypt(kek, nonce_kek, wrapped_key, aad=device_id)`, the AAD being the UTF-8 bytes of `device_id`. Reject on tag failure.
 7. `payload = AES-256-GCM.decrypt(content_key, nonce_ct, ciphertext, aad=envelope_id_draft)`. Reject on tag failure.
 8. Zeroize `shared`, `kek`, `content_key`.
 
@@ -295,7 +295,7 @@ The canonical byte representation of an envelope is required for computing `id` 
 
 Reference: [RFC 8785 JSON Canonicalization Scheme](https://www.rfc-editor.org/rfc/rfc8785), with the additional requirement on `recipients[]` ordering.
 
-Both hashes take these bytes, the final LF included, over the envelope as sealed with some fields set to `""`. `id` (§4.2 step 5) sets `id` and `sig.value`. `envelope_id_draft`, the AAD in §4.2 step 3 and §4.3 step 7, sets `id`, `ciphertext`, `sig.value` and each `recipients[*].wrapped_key`, and takes `sig.alg` as `"bip322"` and `sig.pubkey` as `from.address`. Test vectors v01–v04 pin both: each `id` is that hash, and each ciphertext opens under that AAD.
+Both hashes take these bytes, the final LF included, over the envelope as sealed with some fields set to `""`. `id` (§4.2 step 5) sets `id` and `sig.value`. `envelope_id_draft`, the AAD in §4.2 step 3 and §4.3 step 7, sets `id`, `ciphertext`, `sig.value` and each `recipients[*].wrapped_key`, and takes `sig.alg` as `"bip322"` and `sig.pubkey` as `from.address`. The AAD is the raw 32-byte digest, never its hex. `id` is a different hash (it keeps `ciphertext` and each `wrapped_key`), written as lowercase hex, and never feeds the AEAD. Test vectors v01–v04 pin both: each `id` recomputes from its envelope, and each ciphertext opens under the raw `envelope_id_draft` and not under its hex.
 
 ## 6. Errors
 
