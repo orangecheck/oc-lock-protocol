@@ -4,9 +4,11 @@ All notable changes to the OC Lock protocol and reference SDK.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [2.5.0] — 2026-11-21 — a revocation's absence needs complete relay reads
 
-**No envelope, statement or canonicalization change.**
+**Minor release. No envelope, statement or canonicalization change.**
+
+The first two items are errata: they align §4 and §5 with vectors v01–v04 and the reference lock-core. The earlier wording that removed `sig` (§4.1, step 5) computed a different id than the vectors do, so an implementation written from it should check its ids against v01–v04.
 
 - **§4.2, §4.3, §5 AAD form** (2026-11-11). The content AAD is the raw
   32-byte `envelope_id_draft` digest, never its hex, and the key-wrap AAD is

@@ -73,7 +73,7 @@ For commerce flows ("pay 10k sats to unlock this file"), OC Lock defines an opti
 
 ## Status
 
-v2.4.0 (2026-10-24), spec-stable since v2.0. Later changes are listed under Unreleased in [`CHANGELOG.md`](./CHANGELOG.md).
+v2.5.0 (2026-11-21), spec-stable since v2.0. Later changes are listed under Unreleased in [`CHANGELOG.md`](./CHANGELOG.md).
 
 ## Acknowledgements
 
