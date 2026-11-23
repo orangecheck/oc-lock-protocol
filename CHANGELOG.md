@@ -4,6 +4,19 @@ All notable changes to the OC Lock protocol and reference SDK.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+- **§3.2, §3.3, §3.5 signed text** (2026-11-22). A reader accepts a
+  `binding_sig` over a record's statement or over the statement without its
+  final LF, and over no other text. Some wallets trim the text before they
+  sign it, which drops that LF. The reader still reads every field from
+  `event.content`, and a publisher still writes the final LF there. OC Attest
+  2.2.0 SPEC §4.1 states the same rule for attestations and bonds. SECURITY
+  and the §10 checklist say the same. Vector
+  `device-binding/s01-signed-without-final-lf.json` holds the `b01` bind and
+  the `r01` revocation signed that way and five records signed over other
+  texts; `test-vectors/generate-s01.mjs` rebuilds it byte for byte.
+
 ## [2.5.0] — 2026-11-21 — a revocation's absence needs complete relay reads
 
 **Minor release. No envelope, statement or canonicalization change.**
