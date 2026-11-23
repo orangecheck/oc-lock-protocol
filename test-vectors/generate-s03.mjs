@@ -8,9 +8,10 @@
  * (SPEC §3.3): exactly 65 bytes is a legacy BIP-137 signature, which verifies
  * when the key it recovers derives the signed address, whatever its header's
  * address-type flag says. s03 holds the b01 bind and the r01 revocation
- * signed that way, over the statement and over it without its final LF, and
- * two BIP-137 signatures that do not verify: one by another key, one with a
- * header above 42.
+ * signed that way, over the statement and over it without its final LF, a
+ * bind whose BIP-137 signature has a high S, which is not held to a low S, and
+ * three signatures that do not verify: BIP-137 by another key, BIP-137 with a
+ * header above 42, and the b01 bind's BIP-322 simple signature with a high S.
  *
  * Signs BIP-137 with @noble/curves (deterministic, RFC 6979) and checks each
  * signature with @orangecheck/bip322, both resolved from an oc-packages
@@ -73,6 +74,38 @@ const bip137 = (text, key, base) => {
 };
 
 const withSig = (tags, sig) => tags.map((t) => (t[0] === 'binding_sig' ? ['binding_sig', sig] : t));
+// secp256k1's group order.
+const N = 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141n;
+// The same signature as (r, n − s) under the other y parity: it recovers the same key.
+const highS = (sig, base) => {
+    const bytes = Buffer.from(sig, 'base64');
+    const s = BigInt('0x' + bytes.subarray(33).toString('hex'));
+    if (s > N / 2n) throw new Error('S was not low');
+    const high = Buffer.from((N - s).toString(16).padStart(64, '0'), 'hex');
+    return Buffer.concat([Buffer.from([base + ((bytes[0] - base) ^ 1)]), bytes.subarray(1, 33), high]).toString('base64');
+};
+// A BIP-322 simple P2WPKH signature, [DER signature + SIGHASH_ALL, key], with (r, n − s) in place of (r, s).
+const highSWitness = (sig) => {
+    const b = Buffer.from(sig, 'base64');
+    if (b[0] !== 2) throw new Error('not a two-item witness');
+    const der = b.subarray(2, 2 + b[1] - 1);
+    const key = b.subarray(2 + b[1] + 1);
+    const r = der.subarray(4, 4 + der[3]);
+    const s = BigInt('0x' + der.subarray(6 + der[3]).toString('hex'));
+    if (s > N / 2n) throw new Error('S was not low');
+    let hs = (N - s).toString(16);
+    if (hs.length % 2) hs = '0' + hs;
+    if (/^[89a-f]/.test(hs)) hs = '00' + hs;
+    const high = Buffer.from(hs, 'hex');
+    const newDer = Buffer.concat([Buffer.from([0x30, 4 + r.length + high.length, 0x02, r.length]), r, Buffer.from([0x02, high.length]), high, Buffer.from([0x01])]);
+    return Buffer.concat([Buffer.from([2, newDer.length]), newDer, Buffer.from([key.length]), key]).toString('base64');
+};
+// A BIP-137 signature with its header byte set to `header`, whatever the recovery id.
+const withHeader = (sig, header) => {
+    const bytes = Buffer.from(sig, 'base64');
+    bytes[0] = header;
+    return bytes.toString('base64');
+};
 
 /** A record whose content is `content` and whose binding_sig is `binding_sig` over `signed`. */
 function record(description, template, keyField, content, signed, binding_sig) {
@@ -103,6 +136,14 @@ const accepted = {
         BIND,
         BIND.slice(0, -1)
     ),
+    bind_bip137_high_s: record(
+        'The b01 bind with a BIP-137 binding_sig over its statement whose S is above half the curve order. A BIP-137 signature is not held to a low S (OC Attest SPEC §4), so a reader accepts it.',
+        b01.expected,
+        bindKey,
+        BIND,
+        BIND,
+        highS(bip137(BIND, KEY, 39), 39)
+    ),
     revocation_bip137: record(
         'The r01 revocation, carried by the r01 carrier key, with a BIP-137 binding_sig over its statement. It retires the b01 bind (§3.3, §3.5).',
         r01.expected.revocation,
@@ -119,20 +160,30 @@ const rejected = {
         BIND,
         OTHER_KEY
     ),
-    bind_bip137_header_43: bind(
+    bind_bip137_header_43: record(
         'The b01 bind with a BIP-137 binding_sig over its statement whose header is 43, above BIP-137’s 27 to 42.',
+        b01.expected,
+        bindKey,
         BIND,
         BIND,
-        KEY,
-        43
+        withHeader(bip137(BIND, KEY, 39), 43)
+    ),
+    bind_bip322_high_s: record(
+        'The b01 bind with its BIP-322 simple binding_sig rewritten with a high S. BIP-322 checks a simple signature as a transaction’s, which must have a low S (OC Attest SPEC §4), so it does not verify, while a BIP-137 signature with a high S does.',
+        b01.expected,
+        bindKey,
+        BIND,
+        BIND,
+        highSWitness(b01.expected.binding_sig)
     ),
 };
 
-// Each binding_sig is 65 bytes. An accepted one verifies over its signed text, which is
+// Each binding_sig but the BIP-322 one is 65 bytes. An accepted one verifies over its signed text, which is
 // its content or, when the content ends in exactly one LF, its content without it; a
 // rejected one verifies over neither.
+if (Buffer.from(rejected.bind_bip137_header_43.binding_sig, 'base64')[0] !== 43) throw new Error('header is not 43');
 for (const [name, r] of Object.entries({ ...accepted, ...rejected })) {
-    if (Buffer.from(r.binding_sig, 'base64').length !== 65) throw new Error(`${name}: not 65 bytes`);
+    if (name !== 'bind_bip322_high_s' && Buffer.from(r.binding_sig, 'base64').length !== 65) throw new Error(`${name}: not 65 bytes`);
     const content = r.event.content;
     const oneLf = content.endsWith('\n') && !content.endsWith('\n\n');
     const texts = oneLf ? [content, content.slice(0, -1)] : [content];
@@ -150,7 +201,7 @@ const names = {
 
 const vector = {
     description:
-        'Device records whose binding_sig is a legacy BIP-137 signature (SPEC §3.3, OC Attest SPEC §4): 65 bytes, which verify when the key they recover derives the signed address, whatever the header’s address-type flag says. The b01 bind and the r01 revocation signed that way are accepted, over the statement or over it without its final LF, and the revocation retires the bind. A BIP-137 signature by another key, or with a header above 42, does not verify. The address and key are BIP-322’s own published test vector key (P2WPKH, mainnet); never use them for anything real.',
+        'Device records whose binding_sig is a legacy BIP-137 signature (SPEC §3.3, OC Attest SPEC §4): 65 bytes, which verify when the key they recover derives the signed address, whatever the header’s address-type flag says. The b01 bind and the r01 revocation signed that way are accepted, over the statement or over it without its final LF, and the revocation retires the bind. A BIP-137 signature with a high S is accepted too. A BIP-137 signature by another key, or with a header above 42, does not verify, nor does the b01 bind’s BIP-322 simple signature rewritten with a high S. The address and key are BIP-322’s own published test vector key (P2WPKH, mainnet); never use them for anything real.',
     inputs: {
         address: ADDRESS,
         bitcoin_wif: b01.inputs.bitcoin_wif,
@@ -167,9 +218,11 @@ const vector = {
                 { records: ['bind_bip137'], live: ['bind_bip137'] },
                 { records: ['bind_bip137_without_lf'], live: ['bind_bip137_without_lf'] },
                 { records: ['bind_bip137_signed_without_lf'], live: ['bind_bip137_signed_without_lf'] },
+                { records: ['bind_bip137_high_s'], live: ['bind_bip137_high_s'] },
                 { records: ['b01', 'revocation_bip137'], live: [] },
                 { records: ['bind_bip137_other_key'], live: [] },
                 { records: ['bind_bip137_header_43'], live: [] },
+                { records: ['bind_bip322_high_s'], live: [] },
             ],
             names,
         },

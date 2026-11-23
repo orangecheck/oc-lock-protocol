@@ -22,7 +22,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   revocation written as the bytes they sign, two records whose signature
   covers a final LF their content lacks, and the `b01` bind under content
   with a second LF. `test-vectors/generate-s01.mjs` and `generate-s02.mjs`
-  rebuild them byte for byte.
+  rebuild them byte for byte. A 2.5 reader that verifies `event.content` as
+  written, as `@orangecheck/lock-device` 0.8.0 does, reads records written
+  the new way. A reader that requires the final LF must update before it
+  honours such a revocation.
 - **§3.3 signature schemes** (2026-11-22). A reader checks a `binding_sig`
   as OC Attest 2.2.0 SPEC §4 checks a signature: exactly 65 bytes is a
   legacy BIP-137 signature, which verifies when the key it recovers derives
@@ -31,8 +34,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `@orangecheck/lock-device` already read a signature this way. SECURITY and
   the §10 checklist say the same. Vector
   `device-binding/s03-bip137-binding-sig.json` holds the `b01` bind and the
-  `r01` revocation signed that way and two BIP-137 signatures that do not
-  verify; `test-vectors/generate-s03.mjs` rebuilds it byte for byte.
+  `r01` revocation signed that way, a bind whose BIP-137 signature has a
+  high S, which a reader accepts because BIP-137 is not held to a low S, and
+  three signatures that do not verify: BIP-137 by another key, BIP-137 with
+  header 43, and the `b01` bind's BIP-322 simple signature with a high S,
+  which OC Attest 2.2.0 SPEC §4 refuses; `test-vectors/generate-s03.mjs`
+  rebuilds it byte for byte.
 
 ## [2.5.0] — 2026-11-21 — a revocation's absence needs complete relay reads
 

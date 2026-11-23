@@ -1,5 +1,5 @@
 {
-  "description": "Device records whose binding_sig is a legacy BIP-137 signature (SPEC §3.3, OC Attest SPEC §4): 65 bytes, which verify when the key they recover derives the signed address, whatever the header’s address-type flag says. The b01 bind and the r01 revocation signed that way are accepted, over the statement or over it without its final LF, and the revocation retires the bind. A BIP-137 signature by another key, or with a header above 42, does not verify. The address and key are BIP-322’s own published test vector key (P2WPKH, mainnet); never use them for anything real.",
+  "description": "Device records whose binding_sig is a legacy BIP-137 signature (SPEC §3.3, OC Attest SPEC §4): 65 bytes, which verify when the key they recover derives the signed address, whatever the header’s address-type flag says. The b01 bind and the r01 revocation signed that way are accepted, over the statement or over it without its final LF, and the revocation retires the bind. A BIP-137 signature with a high S is accepted too. A BIP-137 signature by another key, or with a header above 42, does not verify, nor does the b01 bind’s BIP-322 simple signature rewritten with a high S. The address and key are BIP-322’s own published test vector key (P2WPKH, mainnet); never use them for anything real.",
   "inputs": {
     "address": "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l",
     "bitcoin_wif": "L3VFeEujGtevx9w18HD1fhRbCH67Az2dpCymeRE1SoPK6XQtaN2k",
@@ -159,6 +159,45 @@
       },
       "event_id": "7773751da57fc6ab516d0cefc8c033c6de6c983b2b320cd53c3ed87908511486"
     },
+    "bind_bip137_high_s": {
+      "description": "The b01 bind with a BIP-137 binding_sig over its statement whose S is above half the curve order. A BIP-137 signature is not held to a low S (OC Attest SPEC §4), so a reader accepts it.",
+      "signed": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: 3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503\nnostr_pk: 02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\ncreated_at: 2026-10-20T00:00:00.000Z\n",
+      "binding_sig": "J6ghlT7ocH08+/FpgY+4XHVljqHX71kiTSyYwjtbfg/joDfWifrNRfSW3H/O2q0sguHs3gEQyb6M/fS6jfk7A+A=",
+      "nostr_sk": "33c9b0a39e77f3da6920a6a92668a278e88743dfde09aa9fc68d7969ac52bac3",
+      "event": {
+        "pubkey": "02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500",
+        "created_at": 1792454400,
+        "kind": 30078,
+        "tags": [
+          [
+            "d",
+            "oc-lock:device:bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "addr",
+            "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "device_id",
+            "0b1d5ec7a0f3c2e4b6d8091a2c3e4f50"
+          ],
+          [
+            "device_pk",
+            "3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503"
+          ],
+          [
+            "alg",
+            "x25519"
+          ],
+          [
+            "binding_sig",
+            "J6ghlT7ocH08+/FpgY+4XHVljqHX71kiTSyYwjtbfg/joDfWifrNRfSW3H/O2q0sguHs3gEQyb6M/fS6jfk7A+A="
+          ]
+        ],
+        "content": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: 3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503\nnostr_pk: 02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\ncreated_at: 2026-10-20T00:00:00.000Z\n"
+      },
+      "event_id": "f7a1b7eb6fbe6a36d41081fa3eb3ad60f18cef05cfdd1367ab47f11599cb5a92"
+    },
     "revocation_bip137": {
       "description": "The r01 revocation, carried by the r01 carrier key, with a BIP-137 binding_sig over its statement. It retires the b01 bind (§3.3, §3.5).",
       "signed": "oc-lock:device-revoke:v2\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\nrevoked_at: 2026-10-21T00:00:00.000Z\n",
@@ -227,6 +266,14 @@
         },
         {
           "records": [
+            "bind_bip137_high_s"
+          ],
+          "live": [
+            "bind_bip137_high_s"
+          ]
+        },
+        {
+          "records": [
             "b01",
             "revocation_bip137"
           ],
@@ -243,6 +290,12 @@
             "bind_bip137_header_43"
           ],
           "live": []
+        },
+        {
+          "records": [
+            "bind_bip322_high_s"
+          ],
+          "live": []
         }
       ],
       "names": {
@@ -250,9 +303,11 @@
         "bind_bip137": "expected.bind_bip137.event, id 80dce89734069c8befdc1b8e0a87637d0d2b674cb43b32192976235d6919109f",
         "bind_bip137_without_lf": "expected.bind_bip137_without_lf.event, id da7e77760d006dd42200e94c7bfcdf3fa278bba377ca2c1fe17e5a571587401d",
         "bind_bip137_signed_without_lf": "expected.bind_bip137_signed_without_lf.event, id 7773751da57fc6ab516d0cefc8c033c6de6c983b2b320cd53c3ed87908511486",
+        "bind_bip137_high_s": "expected.bind_bip137_high_s.event, id f7a1b7eb6fbe6a36d41081fa3eb3ad60f18cef05cfdd1367ab47f11599cb5a92",
         "revocation_bip137": "expected.revocation_bip137.event, id 7f2147728c67286450b239be8f3f7ee9b7a002546d344dfd753654d6830099a6",
         "bind_bip137_other_key": "reject.bind_bip137_other_key.event, id 282b99de4af2ea22244aa87ec2d01c674d1ce81cfd047379a3e05b117da5f5a9",
-        "bind_bip137_header_43": "reject.bind_bip137_header_43.event, id 2c0cd8f619bad2f5948e2a2f1f9ab84a0237ad944ff43b0a70d546ccff3cf56d"
+        "bind_bip137_header_43": "reject.bind_bip137_header_43.event, id c9cea32722a664bb68ddfe6c171cc855cd6e16b04f9b032fa1f986f618735aa8",
+        "bind_bip322_high_s": "reject.bind_bip322_high_s.event, id 97dafda4a8d4d1d0e2572160a6cfd8d6c97cb94978a7b5a1d3a855351abd914b"
       }
     }
   },
@@ -299,7 +354,7 @@
     "bind_bip137_header_43": {
       "description": "The b01 bind with a BIP-137 binding_sig over its statement whose header is 43, above BIP-137’s 27 to 42.",
       "signed": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: 3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503\nnostr_pk: 02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\ncreated_at: 2026-10-20T00:00:00.000Z\n",
-      "binding_sig": "LKghlT7ocH08+/FpgY+4XHVljqHX71kiTSyYwjtbfg/jX8gpdgUyugtpI4AxJVLTe9jB/uWefuGuwd2j/tb7PWE=",
+      "binding_sig": "K6ghlT7ocH08+/FpgY+4XHVljqHX71kiTSyYwjtbfg/jX8gpdgUyugtpI4AxJVLTe9jB/uWefuGuwd2j/tb7PWE=",
       "nostr_sk": "33c9b0a39e77f3da6920a6a92668a278e88743dfde09aa9fc68d7969ac52bac3",
       "event": {
         "pubkey": "02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500",
@@ -328,12 +383,51 @@
           ],
           [
             "binding_sig",
-            "LKghlT7ocH08+/FpgY+4XHVljqHX71kiTSyYwjtbfg/jX8gpdgUyugtpI4AxJVLTe9jB/uWefuGuwd2j/tb7PWE="
+            "K6ghlT7ocH08+/FpgY+4XHVljqHX71kiTSyYwjtbfg/jX8gpdgUyugtpI4AxJVLTe9jB/uWefuGuwd2j/tb7PWE="
           ]
         ],
         "content": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: 3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503\nnostr_pk: 02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\ncreated_at: 2026-10-20T00:00:00.000Z\n"
       },
-      "event_id": "2c0cd8f619bad2f5948e2a2f1f9ab84a0237ad944ff43b0a70d546ccff3cf56d"
+      "event_id": "c9cea32722a664bb68ddfe6c171cc855cd6e16b04f9b032fa1f986f618735aa8"
+    },
+    "bind_bip322_high_s": {
+      "description": "The b01 bind with its BIP-322 simple binding_sig rewritten with a high S. BIP-322 checks a simple signature as a transaction’s, which must have a low S (OC Attest SPEC §4), so it does not verify, while a BIP-137 signature with a high S does.",
+      "signed": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: 3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503\nnostr_pk: 02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\ncreated_at: 2026-10-20T00:00:00.000Z\n",
+      "binding_sig": "AkkwRgIhAN6FlMtt7waWnDeH/o5puuDixUl34zlGyqc41yaHp31GAiEA5g/M6jUjMVhRRXUj/YA1FQlrkd4qEft/nZE6vFqKws4BIQLH8SADGWRClD2FiOAa7oQEI8xU/BUhUmo7hcKwy9WIcg==",
+      "nostr_sk": "33c9b0a39e77f3da6920a6a92668a278e88743dfde09aa9fc68d7969ac52bac3",
+      "event": {
+        "pubkey": "02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500",
+        "created_at": 1792454400,
+        "kind": 30078,
+        "tags": [
+          [
+            "d",
+            "oc-lock:device:bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "addr",
+            "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "device_id",
+            "0b1d5ec7a0f3c2e4b6d8091a2c3e4f50"
+          ],
+          [
+            "device_pk",
+            "3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503"
+          ],
+          [
+            "alg",
+            "x25519"
+          ],
+          [
+            "binding_sig",
+            "AkkwRgIhAN6FlMtt7waWnDeH/o5puuDixUl34zlGyqc41yaHp31GAiEA5g/M6jUjMVhRRXUj/YA1FQlrkd4qEft/nZE6vFqKws4BIQLH8SADGWRClD2FiOAa7oQEI8xU/BUhUmo7hcKwy9WIcg=="
+          ]
+        ],
+        "content": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: 3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503\nnostr_pk: 02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\ncreated_at: 2026-10-20T00:00:00.000Z\n"
+      },
+      "event_id": "97dafda4a8d4d1d0e2572160a6cfd8d6c97cb94978a7b5a1d3a855351abd914b"
     }
   }
 }
