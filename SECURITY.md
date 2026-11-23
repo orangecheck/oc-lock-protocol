@@ -44,7 +44,7 @@ This document covers the **OC Lock v2 protocol specification** in this repositor
 
 These are cryptographic correctness conditions that conforming implementations MUST satisfy:
 
-1. **Verify `binding_sig` before using a device record.** Implementations MUST call a BIP-322 verifier on the `binding_statement`, or on the statement without its final LF and no other text (SPEC §3.3), against the claimed `address` and refuse to encrypt when verification fails. Failure to do this lets a hostile relay substitute an attacker's `device_pk` for the real one.
+1. **Verify `binding_sig` before using a device record.** Implementations MUST call a BIP-322 verifier on the `binding_statement` as `event.content` holds it, or on that text without its final LF and no other text (SPEC §3.3), against the claimed `address` and refuse to encrypt when verification fails. Failure to do this lets a hostile relay substitute an attacker's `device_pk` for the real one.
 2. **Verify `sig.value` before trusting envelope contents** (unless the caller explicitly skips — e.g., self-seals).
 3. **Never reuse AEAD nonces with the same key.** `content_key` is fresh per envelope and `nonce_ct` is fresh random 12 bytes. Per-recipient `nonce_kek` is also fresh random.
 4. **Zeroize intermediate key material.** `content_key`, `shared`, and `kek` MUST be wiped after use. (JS implementations are best-effort; V8 may retain copies.)

@@ -59,7 +59,7 @@ binding_statement := "oc-lock:device-bind:v2\n"
                   || "created_at: "     || iso8601_utc    || "\n"
 ```
 
-`binding_sig := BIP322(btc_address, binding_statement)`. A reader also accepts a signature over the statement without its final LF (§3.3).
+`binding_sig := BIP322(btc_address, binding_statement)`, or a signature over the statement without its final LF, and `event.content` is exactly the bytes it covers (§3.3).
 
 **v3 statement (publishers MUST emit).** A v3 statement additionally commits to the device's Nostr pubkey (§3.4), so the record authorizes exactly one Nostr key:
 
@@ -88,12 +88,12 @@ event.tags    = [
   ["alg",         "x25519"],
   ["binding_sig", base64(binding_sig)]
 ]
-event.content = binding_statement   // exact bytes, including LFs
+event.content = binding_statement   // exactly the bytes binding_sig covers (below)
 event.pubkey  = ephemeral_nostr_pubkey   // see §3.4
 event.created_at = unix_seconds
 ```
 
-**What `binding_sig` covers.** A reader MUST accept a `binding_sig` that verifies for the signed address over `event.content`, or over `event.content` without its final LF, and MUST NOT accept one over any other text. Some wallets trim the text before they sign it, which drops that LF (OC Attest SPEC §4.1). Dropping it changes no line of the statement, so the reader still reads every field from `event.content`. A publisher still writes the statement as `event.content`, final LF included. This holds for binds and revocations alike (§3.5, vector `s01`).
+**What `binding_sig` covers.** A publisher MUST write as `event.content` exactly the bytes its `binding_sig` covers: the statement, or the statement without its final LF when the wallet trimmed the text before signing it (OC Attest SPEC §4.1). A reader MUST NOT refuse a record because its content lacks the final LF. Dropping it changes no line of the statement, so the reader reads every field from `event.content` either way. A reader MUST accept a `binding_sig` that verifies for the signed address over `event.content`, or over `event.content` without its final LF, and MUST NOT accept one over any other text. So a record whose content keeps a final LF its signature does not cover still verifies, and one whose signature covers a final LF its content lacks does not. This holds for binds and revocations alike (§3.5, vectors `s01`, `s02`).
 
 A record is evidence only for the address in its signed `binding_statement`. A reader MUST reject a bind whose `d` tag is neither `"oc-lock:device:" || address` nor the §3.6 per-device form for that signed address, or whose `addr`, `device_id` or `device_pk` tag differs from its signed statement, and a reader resolving address `A` MUST discard every record whose signed address is not `A`. The `d` tag is writable by any publisher, so a record returned by a `#d` query for `A` may carry a valid binding for a different address. A revocation is read from its signed statement alone (§3.5).
 
@@ -129,7 +129,7 @@ revocation_statement := "oc-lock:device-revoke:v2\n"
                      || "revoked_at: "     || iso8601_utc    || "\n"
 ```
 
-`binding_sig := BIP322(btc_address, revocation_statement)`, which a reader accepts over the statement or over the statement without its final LF, as for a bind (§3.3). The event carries the §3.3 tags with `["device_pk", "revoked"]` and MUST use the §3.3 `d` tag, `"oc-lock:device:" || btc_address`, which every reader queries. A device revoking itself SHOULD carry the revocation under its own Nostr key, so that every relay that accepts it stops serving that device's bind, and MAY use a fresh key. A revocation of another device SHOULD be carried by a fresh Nostr key. A key that carries another live bind of the address MUST NOT carry a revocation: relays replace a record by `(pubkey, kind, d)` (NIP-33), so the revocation takes that bind's place. The authority is the address's signature, so a lost device can be revoked with the wallet alone. A revocation statement names no Nostr key, and a reader MUST NOT reject one for its `event.pubkey`. Nor for its tags: a reader takes a revocation's address and `device_id` from its signed statement, and MUST NOT reject one whose `binding_sig` verifies for that address because its `addr`, `device_id` or `device_pk` tag is missing or says something else, or because it is filed under another `d` tag. A publisher still writes the tags above; a reader that refused a revocation over them would leave the device live (vector `r03`).
+`binding_sig := BIP322(btc_address, revocation_statement)`, or a signature over the statement without its final LF, and `event.content` is exactly the bytes it covers, as for a bind (§3.3). The event carries the §3.3 tags with `["device_pk", "revoked"]` and MUST use the §3.3 `d` tag, `"oc-lock:device:" || btc_address`, which every reader queries. A device revoking itself SHOULD carry the revocation under its own Nostr key, so that every relay that accepts it stops serving that device's bind, and MAY use a fresh key. A revocation of another device SHOULD be carried by a fresh Nostr key. A key that carries another live bind of the address MUST NOT carry a revocation: relays replace a record by `(pubkey, kind, d)` (NIP-33), so the revocation takes that bind's place. The authority is the address's signature, so a lost device can be revoked with the wallet alone. A revocation statement names no Nostr key, and a reader MUST NOT reject one for its `event.pubkey`. Nor for its tags: a reader takes a revocation's address and `device_id` from its signed statement, and MUST NOT reject one whose `binding_sig` verifies for that address because its `addr`, `device_id` or `device_pk` tag is missing or says something else, or because it is filed under another `d` tag. A publisher still writes the tags above; a reader that refused a revocation over them would leave the device live (vector `r03`).
 
 **Which binds are live.** A reader resolving address `A` collects the device records it received for `A` from every relay it queried, and discards each one whose `binding_sig` does not verify (§3.3). Before it merges or deduplicates what different relays returned, it MUST verify each event under NIP-01 (its `id` is the SHA-256 of its serialized fields, and its `sig` verifies for its `pubkey`) and drop one that fails, so it never takes the place of another relay's copy; this checks the Nostr wrapper, never which key carries the record. Then, for each `device_id` `D`:
 
@@ -378,12 +378,12 @@ A client is OC Lock v2 compliant if and only if:
 
 - [ ] Generates device keys as X25519 and stores `device_sk` non-extractable (when WebCrypto permits)
 - [ ] Produces binding statements byte-for-byte per §3.2
-- [ ] Publishes kind-30078 records per §3.3 with BIP-322 binding signature
+- [ ] Publishes kind-30078 records per §3.3 with BIP-322 binding signature, writing as `event.content` exactly the bytes it covers
 - [ ] Canonicalizes envelopes per §5 and produces identical `id` values across implementations
 - [ ] Accepts and produces all required envelope fields per §4.1
 - [ ] Verifies sender BIP-322 signatures before accepting envelope contents, with `sig.pubkey` equal to `from.address` (§4.3)
 - [ ] Uses a device record only for the address its binding statement signs, under that address's `d` tag (§3.3)
-- [ ] Accepts a `binding_sig` over the statement or over the statement without its final LF, and over no other text (§3.3)
+- [ ] Accepts a `binding_sig` over `event.content` or over it without its final LF, and over no other text, and refuses no record because its content lacks the final LF (§3.3)
 - [ ] Treats a Nostr key as a device's inbox only as §3.4 allows: from 2027-01-21 only a v3 record's signed `nostr_pk`, and still seals to a live v2 bind's `device_pk`; re-binds a v2 device with the v2 statement's `created_at` (§3.4)
 - [ ] Seals only to live binds: applies every revocation whose BIP-322 signature verifies, from any relay and any Nostr key, whatever its tags, by signed timestamps, retiring every bind of the device for one that signs no readable `revoked_at`, and treats a bind dated ahead of its clock as not live yet (§3.5)
 - [ ] Dates a revocation it signs no earlier than its clock and the latest `created_at` among that device's binds (§3.5)
