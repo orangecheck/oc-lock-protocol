@@ -10,17 +10,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   before they sign it, which drops the statement's final LF. A publisher
   writes as `event.content` exactly the bytes its `binding_sig` covers, so
   such a record's content has no final LF, and a reader MUST NOT refuse a
-  record for that. A reader accepts a `binding_sig` over `event.content` or
-  over it without its final LF, and over no other text, and still reads every
-  field from `event.content`. OC Attest 2.2.0 SPEC §4.1 states the same
-  reading rule for attestations and bonds. SECURITY and the §10 checklist say
-  the same. Vector `device-binding/s01-signed-without-final-lf.json` holds the
-  `b01` bind and the `r01` revocation signed without the final LF under
-  content that keeps it, and five records signed over other texts. Vector
+  record for that. A reader accepts a `binding_sig` over `event.content` or,
+  when it ends in exactly one LF, over it without that LF, and over no other
+  text, and still reads every field from `event.content`. OC Attest 2.2.0
+  SPEC §4.1 states the same reading rule for attestations and bonds. SECURITY
+  and the §10 checklist say the same. Vector
+  `device-binding/s01-signed-without-final-lf.json` holds the `b01` bind and
+  the `r01` revocation signed without the final LF under content that keeps
+  it, and five records signed over other texts. Vector
   `device-binding/s02-content-without-final-lf.json` holds the same bind and
-  revocation written as the bytes they sign, and two records whose signature
-  covers a final LF their content lacks. `test-vectors/generate-s01.mjs` and
-  `generate-s02.mjs` rebuild them byte for byte.
+  revocation written as the bytes they sign, two records whose signature
+  covers a final LF their content lacks, and the `b01` bind under content
+  with a second LF. `test-vectors/generate-s01.mjs` and `generate-s02.mjs`
+  rebuild them byte for byte.
 - **§3.3 signature schemes** (2026-11-22). A reader checks a `binding_sig`
   as OC Attest 2.2.0 SPEC §4 checks a signature: exactly 65 bytes is a
   legacy BIP-137 signature, which verifies when the key it recovers derives

@@ -10,9 +10,11 @@
  * reader MUST NOT refuse it for that. s02 holds the b01 bind and the r01
  * revocation written that way, and the same two records signed over the
  * statement with its LF under content without it, which a reader discards:
- * the content is what was signed, so a reader never adds the LF back. Each
- * case holds for a reader that checks binding_sig over event.content alone
- * as well as for one that also tries it without its final LF.
+ * the content is what was signed, so a reader never adds the LF back. It also
+ * holds the b01 bind under content with a second LF, which a reader discards:
+ * it tries the content without its final LF only when the content ends in
+ * exactly one. Each case holds for a reader that checks binding_sig over
+ * event.content alone as well as for one that follows that rule.
  *
  * Signs with @orangecheck/bip322 (deterministic, RFC 6979), resolved from an
  * oc-packages checkout next to this repository; set OC_SDK_NODE_MODULES to use
@@ -93,18 +95,28 @@ const rejected = {
         'The r01 revocation with content without its final LF and a binding_sig over the statement with it. It retires nothing (§3.5).',
         REVOCATION
     ),
+    bind_content_second_lf: record(
+        'The b01 bind, its binding_sig b01’s own over the statement, under content that is the statement with a second LF. The content ends in two LFs, so a reader tries only the content, which the signature does not cover.',
+        b01.expected,
+        bindKey,
+        BIND + '\n',
+        BIND
+    ),
 };
+if (rejected.bind_content_second_lf.binding_sig !== b01.expected.binding_sig) throw new Error('not b01’s binding_sig');
 
-// Every record's content is the statement without its final LF. An accepted record's
-// signature verifies over its content; a rejected one's over the content with an LF
-// added, and not over the content. Neither reading tries that text, so both readers
-// judge every record alike.
+// Each signature verifies over its signed text. An accepted record's content has no
+// final LF and its signature verifies over it. A rejected one's verifies over no text
+// a reader tries: the content, and the content without its final LF when it ends in
+// exactly one. So both readers judge every record alike.
+const tried = (content) =>
+    content.endsWith('\n') && !content.endsWith('\n\n') ? [content, content.slice(0, -1)] : [content];
 for (const [name, r] of Object.entries({ ...accepted, ...rejected })) {
     const content = r.event.content;
-    if (content.endsWith('\n')) throw new Error(`${name}: content ends in LF`);
+    if (name in accepted && content.endsWith('\n')) throw new Error(`${name}: content ends in LF`);
     if (!verifySignature(ADDRESS, r.signed, r.binding_sig)) throw new Error(`${name}: does not verify over its text`);
-    if (verifySignature(ADDRESS, content, r.binding_sig) !== name in accepted) {
-        throw new Error(`${name}: over its content: ${!(name in accepted)}`);
+    if (tried(content).some((t) => verifySignature(ADDRESS, t, r.binding_sig)) !== name in accepted) {
+        throw new Error(`${name}: over a text a reader tries: ${!(name in accepted)}`);
     }
 }
 
@@ -117,7 +129,7 @@ const names = {
 
 const vector = {
     description:
-        'Device records written as the bytes their binding_sig covers (SPEC §3.3). A wallet that trims the text before signing it signs the statement without its final LF, and the publisher writes that as event.content. The b01 bind and the r01 revocation written that way are accepted, and the revocation retires the bind. The same records signed over the statement with its final LF under content without it do not verify: a reader checks the signature over the content, or the content without a final LF, and never adds one. The address and key are BIP-322’s own published test vector key (P2WPKH, mainnet); never use them for anything real.',
+        'Device records written as the bytes their binding_sig covers (SPEC §3.3). A wallet that trims the text before signing it signs the statement without its final LF, and the publisher writes that as event.content. The b01 bind and the r01 revocation written that way are accepted, and the revocation retires the bind. The same records signed over the statement with its final LF under content without it do not verify: a reader checks the signature over the content, or the content without a final LF, and never adds one. Nor does the b01 bind under content with a second LF: a reader tries the content without its final LF only when the content ends in exactly one. The address and key are BIP-322’s own published test vector key (P2WPKH, mainnet); never use them for anything real.',
     inputs: {
         address: ADDRESS,
         bitcoin_wif: b01.inputs.bitcoin_wif,
@@ -142,6 +154,7 @@ const vector = {
                 { records: ['bind_without_lf', 'r01'], live: [] },
                 { records: ['bind_signed_with_lf'], live: [] },
                 { records: ['b01', 'revocation_signed_with_lf'], live: ['b01'] },
+                { records: ['bind_content_second_lf'], live: [] },
             ],
             names,
         },

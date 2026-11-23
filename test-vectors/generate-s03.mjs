@@ -129,11 +129,13 @@ const rejected = {
 };
 
 // Each binding_sig is 65 bytes. An accepted one verifies over its signed text, which is
-// its content or its content without the final LF; a rejected one verifies over neither.
+// its content or, when the content ends in exactly one LF, its content without it; a
+// rejected one verifies over neither.
 for (const [name, r] of Object.entries({ ...accepted, ...rejected })) {
     if (Buffer.from(r.binding_sig, 'base64').length !== 65) throw new Error(`${name}: not 65 bytes`);
     const content = r.event.content;
-    const texts = content.endsWith('\n') ? [content, content.slice(0, -1)] : [content];
+    const oneLf = content.endsWith('\n') && !content.endsWith('\n\n');
+    const texts = oneLf ? [content, content.slice(0, -1)] : [content];
     if (!texts.includes(r.signed)) throw new Error(`${name}: signs neither its content nor that without its LF`);
     if (texts.some((t) => verifySignature(ADDRESS, t, r.binding_sig)) !== name in accepted) {
         throw new Error(`${name}: verifies ${!(name in accepted)}`);
