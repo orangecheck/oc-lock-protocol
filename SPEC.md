@@ -1,7 +1,7 @@
-# OC Lock Protocol v2.5 — Specification
+# OC Lock Protocol v2.6 — Specification
 
 **Status:** Stable
-**Version:** 2.5.0 (2026-11-21). 2.0.0 was published 2026-04.
+**Version:** 2.6.0 (2026-11-23). 2.0.0 was published 2026-04.
 **Supersedes:** LOCK Protocol v1.0 (adaptor signature) and v1.1 (Proof-of-Access)
 
 ---

@@ -4,7 +4,9 @@ All notable changes to the OC Lock protocol and reference SDK.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [2.6.0] — 2026-11-23 — a record carries the bytes its binding_sig covers
+
+**Minor release. No envelope, statement or canonicalization change.**
 
 - **§3.2, §3.3, §3.5 signed text** (2026-11-22). Some wallets trim the text
   before they sign it, which drops the statement's final LF. A publisher
@@ -22,10 +24,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   revocation written as the bytes they sign, two records whose signature
   covers a final LF their content lacks, and the `b01` bind under content
   with a second LF. `test-vectors/generate-s01.mjs` and `generate-s02.mjs`
-  rebuild them byte for byte. A 2.5 reader that verifies `event.content` as
-  written, as `@orangecheck/lock-device` 0.8.0 does, reads records written
-  the new way. A reader that requires the final LF must update before it
-  honours such a revocation.
+  rebuild them byte for byte. Reference implementation:
+  `@orangecheck/lock-device` 0.9.0. A 2.5 reader that verifies
+  `event.content` as written, as `@orangecheck/lock-device` 0.8.0 does,
+  reads records written the new way. A reader that requires the final LF
+  must update before it honours such a revocation.
 - **§3.3 signature schemes** (2026-11-22). A reader checks a `binding_sig`
   as OC Attest 2.2.0 SPEC §4 checks a signature: exactly 65 bytes is a
   legacy BIP-137 signature, which verifies when the key it recovers derives
