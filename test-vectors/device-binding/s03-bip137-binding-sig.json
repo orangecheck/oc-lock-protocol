@@ -1,0 +1,339 @@
+{
+  "description": "Device records whose binding_sig is a legacy BIP-137 signature (SPEC §3.3, OC Attest SPEC §4): 65 bytes, which verify when the key they recover derives the signed address, whatever the header’s address-type flag says. The b01 bind and the r01 revocation signed that way are accepted, over the statement or over it without its final LF, and the revocation retires the bind. A BIP-137 signature by another key, or with a header above 42, does not verify. The address and key are BIP-322’s own published test vector key (P2WPKH, mainnet); never use them for anything real.",
+  "inputs": {
+    "address": "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l",
+    "bitcoin_wif": "L3VFeEujGtevx9w18HD1fhRbCH67Az2dpCymeRE1SoPK6XQtaN2k",
+    "device_id": "0b1d5ec7a0f3c2e4b6d8091a2c3e4f50",
+    "reader_time": "2026-11-22T00:00:00.000Z"
+  },
+  "expected": {
+    "b01": {
+      "event": {
+        "pubkey": "02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500",
+        "created_at": 1792454400,
+        "kind": 30078,
+        "tags": [
+          [
+            "d",
+            "oc-lock:device:bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "addr",
+            "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "device_id",
+            "0b1d5ec7a0f3c2e4b6d8091a2c3e4f50"
+          ],
+          [
+            "device_pk",
+            "3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503"
+          ],
+          [
+            "alg",
+            "x25519"
+          ],
+          [
+            "binding_sig",
+            "AkgwRQIhAN6FlMtt7waWnDeH/o5puuDixUl34zlGyqc41yaHp31GAiAZ8DMVytzOp666itwCf8rpsUNLCIU2pLwiQSPQdat+cwEhAsfxIAMZZEKUPYWI4BruhAQjzFT8FSFSajuFwrDL1Yhy"
+          ]
+        ],
+        "content": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: 3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503\nnostr_pk: 02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\ncreated_at: 2026-10-20T00:00:00.000Z\n"
+      },
+      "event_id": "5397d5b6df75abda35c2b198d0828a7b54412dcff0530c7f2e9045add36433a9"
+    },
+    "bind_bip137": {
+      "description": "The b01 bind with a BIP-137 binding_sig over its statement, header in the P2WPKH range. A reader accepts it (§3.3).",
+      "signed": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: 3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503\nnostr_pk: 02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\ncreated_at: 2026-10-20T00:00:00.000Z\n",
+      "binding_sig": "KKghlT7ocH08+/FpgY+4XHVljqHX71kiTSyYwjtbfg/jX8gpdgUyugtpI4AxJVLTe9jB/uWefuGuwd2j/tb7PWE=",
+      "nostr_sk": "33c9b0a39e77f3da6920a6a92668a278e88743dfde09aa9fc68d7969ac52bac3",
+      "event": {
+        "pubkey": "02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500",
+        "created_at": 1792454400,
+        "kind": 30078,
+        "tags": [
+          [
+            "d",
+            "oc-lock:device:bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "addr",
+            "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "device_id",
+            "0b1d5ec7a0f3c2e4b6d8091a2c3e4f50"
+          ],
+          [
+            "device_pk",
+            "3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503"
+          ],
+          [
+            "alg",
+            "x25519"
+          ],
+          [
+            "binding_sig",
+            "KKghlT7ocH08+/FpgY+4XHVljqHX71kiTSyYwjtbfg/jX8gpdgUyugtpI4AxJVLTe9jB/uWefuGuwd2j/tb7PWE="
+          ]
+        ],
+        "content": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: 3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503\nnostr_pk: 02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\ncreated_at: 2026-10-20T00:00:00.000Z\n"
+      },
+      "event_id": "80dce89734069c8befdc1b8e0a87637d0d2b674cb43b32192976235d6919109f"
+    },
+    "bind_bip137_without_lf": {
+      "description": "The b01 bind written as the bytes its BIP-137 binding_sig covers, the statement without its final LF, with a header that names a compressed P2PKH key. A reader ignores the header’s address type (OC Attest SPEC §4) and accepts it.",
+      "signed": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: 3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503\nnostr_pk: 02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\ncreated_at: 2026-10-20T00:00:00.000Z",
+      "binding_sig": "H+vKqmNBLcmo1WZ23cKeNz2m+A1cDKBKSUR+j0IHzwrhanc83C+1TmMKXhmn9qw/w8fALXVOH1SDKDWrI78XV1Q=",
+      "nostr_sk": "33c9b0a39e77f3da6920a6a92668a278e88743dfde09aa9fc68d7969ac52bac3",
+      "event": {
+        "pubkey": "02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500",
+        "created_at": 1792454400,
+        "kind": 30078,
+        "tags": [
+          [
+            "d",
+            "oc-lock:device:bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "addr",
+            "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "device_id",
+            "0b1d5ec7a0f3c2e4b6d8091a2c3e4f50"
+          ],
+          [
+            "device_pk",
+            "3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503"
+          ],
+          [
+            "alg",
+            "x25519"
+          ],
+          [
+            "binding_sig",
+            "H+vKqmNBLcmo1WZ23cKeNz2m+A1cDKBKSUR+j0IHzwrhanc83C+1TmMKXhmn9qw/w8fALXVOH1SDKDWrI78XV1Q="
+          ]
+        ],
+        "content": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: 3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503\nnostr_pk: 02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\ncreated_at: 2026-10-20T00:00:00.000Z"
+      },
+      "event_id": "da7e77760d006dd42200e94c7bfcdf3fa278bba377ca2c1fe17e5a571587401d"
+    },
+    "bind_bip137_signed_without_lf": {
+      "description": "The b01 bind with content that keeps the final LF and a BIP-137 binding_sig over the statement without it. A reader accepts it (§3.3).",
+      "signed": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: 3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503\nnostr_pk: 02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\ncreated_at: 2026-10-20T00:00:00.000Z",
+      "binding_sig": "J+vKqmNBLcmo1WZ23cKeNz2m+A1cDKBKSUR+j0IHzwrhanc83C+1TmMKXhmn9qw/w8fALXVOH1SDKDWrI78XV1Q=",
+      "nostr_sk": "33c9b0a39e77f3da6920a6a92668a278e88743dfde09aa9fc68d7969ac52bac3",
+      "event": {
+        "pubkey": "02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500",
+        "created_at": 1792454400,
+        "kind": 30078,
+        "tags": [
+          [
+            "d",
+            "oc-lock:device:bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "addr",
+            "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "device_id",
+            "0b1d5ec7a0f3c2e4b6d8091a2c3e4f50"
+          ],
+          [
+            "device_pk",
+            "3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503"
+          ],
+          [
+            "alg",
+            "x25519"
+          ],
+          [
+            "binding_sig",
+            "J+vKqmNBLcmo1WZ23cKeNz2m+A1cDKBKSUR+j0IHzwrhanc83C+1TmMKXhmn9qw/w8fALXVOH1SDKDWrI78XV1Q="
+          ]
+        ],
+        "content": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: 3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503\nnostr_pk: 02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\ncreated_at: 2026-10-20T00:00:00.000Z\n"
+      },
+      "event_id": "7773751da57fc6ab516d0cefc8c033c6de6c983b2b320cd53c3ed87908511486"
+    },
+    "revocation_bip137": {
+      "description": "The r01 revocation, carried by the r01 carrier key, with a BIP-137 binding_sig over its statement. It retires the b01 bind (§3.3, §3.5).",
+      "signed": "oc-lock:device-revoke:v2\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\nrevoked_at: 2026-10-21T00:00:00.000Z\n",
+      "binding_sig": "J3AX5nmLWv/RKmH2E3Xbg1lF+pMEOhu2PHOFDuWsF+2jbpKLB3h1ncNWePDninG92Mp7hcYEHH5DLDFrPwBy77E=",
+      "carrier_nostr_sk": "4c4207038dd178d4e1016d7e17d23340da6e9aad3bc3956612e863a143bd3e05",
+      "event": {
+        "pubkey": "fe236e21bc16fba8c073ada21cee4be0db3a3667914aed0c26750c2ae313dd32",
+        "created_at": 1792540800,
+        "kind": 30078,
+        "tags": [
+          [
+            "d",
+            "oc-lock:device:bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "addr",
+            "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "device_id",
+            "0b1d5ec7a0f3c2e4b6d8091a2c3e4f50"
+          ],
+          [
+            "device_pk",
+            "revoked"
+          ],
+          [
+            "alg",
+            "x25519"
+          ],
+          [
+            "binding_sig",
+            "J3AX5nmLWv/RKmH2E3Xbg1lF+pMEOhu2PHOFDuWsF+2jbpKLB3h1ncNWePDninG92Mp7hcYEHH5DLDFrPwBy77E="
+          ]
+        ],
+        "content": "oc-lock:device-revoke:v2\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\nrevoked_at: 2026-10-21T00:00:00.000Z\n"
+      },
+      "event_id": "7f2147728c67286450b239be8f3f7ee9b7a002546d344dfd753654d6830099a6"
+    },
+    "live": {
+      "description": "Each case is the union of the records a reader received for the address, judged at inputs.reader_time. live lists the binds a sender may seal to.",
+      "cases": [
+        {
+          "records": [
+            "bind_bip137"
+          ],
+          "live": [
+            "bind_bip137"
+          ]
+        },
+        {
+          "records": [
+            "bind_bip137_without_lf"
+          ],
+          "live": [
+            "bind_bip137_without_lf"
+          ]
+        },
+        {
+          "records": [
+            "bind_bip137_signed_without_lf"
+          ],
+          "live": [
+            "bind_bip137_signed_without_lf"
+          ]
+        },
+        {
+          "records": [
+            "b01",
+            "revocation_bip137"
+          ],
+          "live": []
+        },
+        {
+          "records": [
+            "bind_bip137_other_key"
+          ],
+          "live": []
+        },
+        {
+          "records": [
+            "bind_bip137_header_43"
+          ],
+          "live": []
+        }
+      ],
+      "names": {
+        "b01": "expected.b01.event (b01-bind-v3.json expected.event), id 5397d5b6df75abda35c2b198d0828a7b54412dcff0530c7f2e9045add36433a9",
+        "bind_bip137": "expected.bind_bip137.event, id 80dce89734069c8befdc1b8e0a87637d0d2b674cb43b32192976235d6919109f",
+        "bind_bip137_without_lf": "expected.bind_bip137_without_lf.event, id da7e77760d006dd42200e94c7bfcdf3fa278bba377ca2c1fe17e5a571587401d",
+        "bind_bip137_signed_without_lf": "expected.bind_bip137_signed_without_lf.event, id 7773751da57fc6ab516d0cefc8c033c6de6c983b2b320cd53c3ed87908511486",
+        "revocation_bip137": "expected.revocation_bip137.event, id 7f2147728c67286450b239be8f3f7ee9b7a002546d344dfd753654d6830099a6",
+        "bind_bip137_other_key": "reject.bind_bip137_other_key.event, id 282b99de4af2ea22244aa87ec2d01c674d1ce81cfd047379a3e05b117da5f5a9",
+        "bind_bip137_header_43": "reject.bind_bip137_header_43.event, id 2c0cd8f619bad2f5948e2a2f1f9ab84a0237ad944ff43b0a70d546ccff3cf56d"
+      }
+    }
+  },
+  "reject": {
+    "bind_bip137_other_key": {
+      "description": "The b01 bind with a BIP-137 binding_sig over its statement by another key: the key it recovers does not derive the address.",
+      "signed": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: 3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503\nnostr_pk: 02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\ncreated_at: 2026-10-20T00:00:00.000Z\n",
+      "binding_sig": "J9oXz+vqeK2XyXe9IeIhZKPrCPV1mmw5ey4Nu7A4MCxfbzsJ6b9MfKWi+M5WP/cK93oxAzh1bUXun2bqJ0boJBo=",
+      "nostr_sk": "33c9b0a39e77f3da6920a6a92668a278e88743dfde09aa9fc68d7969ac52bac3",
+      "event": {
+        "pubkey": "02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500",
+        "created_at": 1792454400,
+        "kind": 30078,
+        "tags": [
+          [
+            "d",
+            "oc-lock:device:bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "addr",
+            "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "device_id",
+            "0b1d5ec7a0f3c2e4b6d8091a2c3e4f50"
+          ],
+          [
+            "device_pk",
+            "3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503"
+          ],
+          [
+            "alg",
+            "x25519"
+          ],
+          [
+            "binding_sig",
+            "J9oXz+vqeK2XyXe9IeIhZKPrCPV1mmw5ey4Nu7A4MCxfbzsJ6b9MfKWi+M5WP/cK93oxAzh1bUXun2bqJ0boJBo="
+          ]
+        ],
+        "content": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: 3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503\nnostr_pk: 02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\ncreated_at: 2026-10-20T00:00:00.000Z\n"
+      },
+      "event_id": "282b99de4af2ea22244aa87ec2d01c674d1ce81cfd047379a3e05b117da5f5a9"
+    },
+    "bind_bip137_header_43": {
+      "description": "The b01 bind with a BIP-137 binding_sig over its statement whose header is 43, above BIP-137’s 27 to 42.",
+      "signed": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: 3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503\nnostr_pk: 02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\ncreated_at: 2026-10-20T00:00:00.000Z\n",
+      "binding_sig": "LKghlT7ocH08+/FpgY+4XHVljqHX71kiTSyYwjtbfg/jX8gpdgUyugtpI4AxJVLTe9jB/uWefuGuwd2j/tb7PWE=",
+      "nostr_sk": "33c9b0a39e77f3da6920a6a92668a278e88743dfde09aa9fc68d7969ac52bac3",
+      "event": {
+        "pubkey": "02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500",
+        "created_at": 1792454400,
+        "kind": 30078,
+        "tags": [
+          [
+            "d",
+            "oc-lock:device:bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "addr",
+            "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l"
+          ],
+          [
+            "device_id",
+            "0b1d5ec7a0f3c2e4b6d8091a2c3e4f50"
+          ],
+          [
+            "device_pk",
+            "3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503"
+          ],
+          [
+            "alg",
+            "x25519"
+          ],
+          [
+            "binding_sig",
+            "LKghlT7ocH08+/FpgY+4XHVljqHX71kiTSyYwjtbfg/jX8gpdgUyugtpI4AxJVLTe9jB/uWefuGuwd2j/tb7PWE="
+          ]
+        ],
+        "content": "oc-lock:device-bind:v3\naddress: bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l\ndevice_pk: 3b4e0e7f7293be66e027a0e699f9a4d378fd97467afe05b502412230152a5503\nnostr_pk: 02a6ec1d9fed98848d05124b2c9eb950d0d25cf758d1c76837827d29698bb500\ndevice_id: 0b1d5ec7a0f3c2e4b6d8091a2c3e4f50\ncreated_at: 2026-10-20T00:00:00.000Z\n"
+      },
+      "event_id": "2c0cd8f619bad2f5948e2a2f1f9ab84a0237ad944ff43b0a70d546ccff3cf56d"
+    }
+  }
+}

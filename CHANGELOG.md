@@ -21,6 +21,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   revocation written as the bytes they sign, and two records whose signature
   covers a final LF their content lacks. `test-vectors/generate-s01.mjs` and
   `generate-s02.mjs` rebuild them byte for byte.
+- **§3.3 signature schemes** (2026-11-22). A reader checks a `binding_sig`
+  as OC Attest 2.2.0 SPEC §4 checks a signature: exactly 65 bytes is a
+  legacy BIP-137 signature, which verifies when the key it recovers derives
+  the address, whatever its header's address-type flag says, and anything
+  else is BIP-322 simple. The verifiers the reference clients pass to
+  `@orangecheck/lock-device` already read a signature this way. SECURITY and
+  the §10 checklist say the same. Vector
+  `device-binding/s03-bip137-binding-sig.json` holds the `b01` bind and the
+  `r01` revocation signed that way and two BIP-137 signatures that do not
+  verify; `test-vectors/generate-s03.mjs` rebuilds it byte for byte.
 
 ## [2.5.0] — 2026-11-21 — a revocation's absence needs complete relay reads
 
